@@ -144,7 +144,7 @@ ALPHA           : [a-zA-Z_] ;
 
 There are a few differences or additions to the original reference sheet in this grammar. These include but are not necessarily limited to:
 
-1. AND and OR don't have a specified precendece on the reference sheet, but in most languages, OR has a lower precedence than AND, so that was added to the grammar.
+1. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
 2. The College Board doesn't specify that logical operators should short-circuit, but it's pretty logical that they should exist.
 3. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
 4. Obviously College Board doesn't specify how to handle errors, so this interpreter is relatively lenient with types; it uses the same truthiness and mostly the same casting rules as JavaScript.

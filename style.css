@@ -18,6 +18,26 @@ body {
 	margin: 8em auto 2em auto;
 }
 
+.small {
+	display: block;
+	float: right;
+}
+.small img {
+	width: 0.8em;
+	display: inline-block;
+}
+.small img {
+	filter: invert();
+	transition: opacity 0.2s;
+}
+.small img:hover {
+	opacity: 0.8;
+}
+
+h2 {
+	margin: 0.5em 0 0.2em 0;
+}
+
 textarea {
 	width: 100%;
 	resize: vertical;
