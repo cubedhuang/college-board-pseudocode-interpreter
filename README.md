@@ -45,7 +45,7 @@ REPEAT 10 TIMES
 </details>
 
 <details>
-<summary><strong>Factorial numbers with a list</strong></summary>
+<summary><strong>Factorial numbers with a list and for-each</strong></summary>
 
 ```
 list ← [1, 1]
@@ -57,7 +57,10 @@ REPEAT 10 TIMES
   APPEND (list, next)
 }
 
-DISPLAY (list)
+FOR EACH number IN list
+{
+  DISPLAY (number)
+}
 ```
 
 </details>
@@ -105,6 +108,46 @@ This language has a lot of really weird aspects:
 | `-`                | Right         | Unary Negation   |
 | `..(..)`, `..[..]` | Left          | Calls or Indexes |
 | `(...)`            | Left          | Parentheses      |
+
+## Additions
+
+There are a few additions to the original reference sheet in this implementation. These include but are not necessarily limited to:
+
+1. Strings aren't specified on the reference sheet, but on practice exam questions they use string literals, so I've gone ahead and added minimal support for strings. String literals are multi-line, there aren't escape sequences, and strings can only start and end with `"`. They can be concatenated, and adding strings with other types will cast those types to their string variants. Strings can be indexed (with 1-indexing to be consist with lists) but can't be modified since they should act immutable. The `LENGTH` procedure will return the length of a string. This pretty fun because strings make it possible to write programs to interpret esoteric languages like Brainf\*ck.
+2. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
+3. The College Board doesn't specify that logical operators should short-circuit, but it's logical that they should.
+4. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
+5. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
+6. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
+7. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
+8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
+9. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
+
+```
+a ← 1 b ← 1
+```
+
+is equivalent to:
+
+```
+a ← 1
+b ← 1
+```
+
+This has some implications for writing code, because it's possible to write write code like:
+
+```
+a ← 1
+(4 + 5)
+```
+
+which looks like it should be two separate statements, but is actually equivalent to:
+
+```
+a ← 1(4 + 5)
+```
+
+which is clearly an error.
 
 ## Grammar
 
@@ -175,43 +218,3 @@ STRING          : '"' [^"]* '"' ;
 DIGIT           : [0-9] ;
 ALPHA           : [a-zA-Z_] ;
 ```
-
-### Differences and Additions
-
-There are a few differences or additions to the original reference sheet in this grammar. These include but are not necessarily limited to:
-
-1. Strings aren't specified on the reference sheet, but on practice exam questions they use string literals, so I've gone ahead and added minimal support for strings. String literals are multi-line, there aren't escape sequences, and strings can only start and end with `"`. They can be concatenated, and adding strings with other types will cast those types to their string variants. Strings can be indexed (with 1-indexing to be consist with lists) but can't be modified since they should act immutable. The `LENGTH` procedure will return the length of a string. This pretty fun because strings make it possible to write programs to interpret esoteric languages like Brainf\*ck.
-2. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
-3. The College Board doesn't specify that logical operators should short-circuit, but it's pretty logical that they should exist.
-4. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
-5. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
-6. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
-7. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
-8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
-9. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
-
-```
-a ← 1 b ← 1
-```
-
-is equivalent to:
-
-```
-a ← 1
-b ← 1
-```
-
-This has some implications for writing code, because it's possible to write write code like:
-
-```
-a ← 1
-(4 + 5)
-```
-
-which looks like it should be two separate statements, but is actually equivalent to:
-
-```
-a ← 1(4 + 5)
-```
-
-which is clearly an error.
