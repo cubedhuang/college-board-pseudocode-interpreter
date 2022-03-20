@@ -22,19 +22,19 @@ Shown below are a few sample programs that show off some features.
 <summary><strong>Recursive fibbonacci numbers</strong></summary>
 
 ```
-PROCEDURE fib(n)
+PROCEDURE Fibonacci (n)
 {
-  IF(n ≤ 1)
+  IF (n ≤ 1)
   {
-    RETURN(n)
+    RETURN (n)
   }
-  RETURN(fib(n - 1) + fib(n - 2))
+  RETURN (Fibonacci (n - 1) + Fibonacci (n - 2))
 }
 
 i ← 1
 REPEAT 10 TIMES
 {
-  DISPLAY(fib(i))
+  DISPLAY (Fibonacci (i))
   i ← i + 1
 }
 ```
@@ -49,12 +49,12 @@ list ← [1, 1]
 
 REPEAT 10 TIMES
 {
-  length ← LENGTH(list)
+  length ← LENGTH (list)
   next ← list[length] * length
-  APPEND(list, next)
+  APPEND (list, next)
 }
 
-DISPLAY(list)
+DISPLAY (list)
 ```
 
 </details>
@@ -63,18 +63,18 @@ DISPLAY(list)
 <summary><strong>Closures</strong></summary>
 
 ```
-PROCEDURE add(x)
+PROCEDURE Add (x)
 {
-  PROCEDURE addX(y)
+  PROCEDURE AddX (y)
   {
-    RETURN(x + y)
+    RETURN (x + y)
   }
-  RETURN(addX)
+  RETURN (AddX)
 }
 
-add5 ← add(5)
+Add5 ← Add (5)
 
-DISPLAY(add5(10))
+DISPLAY (Add5 (10))
 ```
 
 </details>
