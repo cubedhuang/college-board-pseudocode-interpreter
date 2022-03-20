@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<link rel="stylesheet" href="./style.css">
+
+		<title>College Board Pseudocode Interpreter</title>
+	</head>
+
+	<body>
+		<div class="container">
+			<h1>College Board Pseudocode Interpreter</h1>
+
+			<textarea name="editor" id="editor" cols="30" rows="15" spellcheck="false"
+				data-gramm="false" data-gramm_editor="false"
+				data-enable-grammarly="false"></textarea>
+
+			<div class="spaced">
+				<div>
+					<h3 class="symbol-header">Special Symbols</h3>
+					<div class="symbols">
+						<button class="make-symbol">←</button>
+						<button class="make-symbol">≠</button>
+						<button class="make-symbol">≤</button>
+						<button class="make-symbol">≥</button>
+					</div>
+				</div>
+
+				<button id="run">run</button>
+			</div>
+
+			<div>
+				<h3>Output</h3>
+				<pre id="output"></pre>
+			</div>
+
+			<div>
+				<h3>Syntax Tree</h3>
+				<pre id="ast"></pre>
+			</div>
+
+			<div>
+				<h3>Tokens</h3>
+				<pre id="tokens"></pre>
+			</div>
+		</div>
+
+		<script src="script.js" type="module"></script>
+	</body>
+</html>

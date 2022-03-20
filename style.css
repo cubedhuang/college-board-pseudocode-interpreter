@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend&family=Fira+Code&display=swap");
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	background: #08204b;
+	color: #fff;
+	font-family: "Lexend", system-ui, sans-serif;
+}
+
+.container {
+	width: min(800px, calc(100% - 3em));
+	margin: 8em auto 2em auto;
+}
+
+textarea {
+	width: 100%;
+	resize: vertical;
+	padding: 0.5em;
+	background: #0b0f1a;
+	color: #fff;
+	border: none;
+	font-family: "Fira Code", monospace;
+	font-size: 1.2rem;
+	tab-size: 4;
+}
+
+textarea:focus {
+	outline: none;
+}
+
+.spaced {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+h3.symbol-header {
+	display: inline-block;
+	margin-right: 1em;
+}
+
+.symbols {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	margin: 0.5em 0;
+	gap: 0.5em;
+}
+
+.make-symbol {
+	display: inline-block;
+	width: 2em;
+	height: 2em;
+	border: none;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 1.5em;
+	font: inherit;
+	font-family: "Fira Code", monospace;
+	font-size: 1.2rem;
+	font-weight: bold;
+	color: #fff;
+	background: #0b0f1a;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+}
+
+.make-symbol:hover {
+	background: #fff;
+	color: #0b0f1a;
+}
+
+#run {
+	background: #08204b;
+	color: #fff;
+	border: 0.2em solid #fff;
+	border-radius: 0.2em;
+	padding: 0.2em 0.5em;
+	font: inherit;
+	font-size: 1.2rem;
+	cursor: pointer;
+	transition: background 0.2s, color 0.2s;
+}
+
+#run:hover {
+	background: #fff;
+	color: #08204b;
+}
+
+h3:not(.symbol-header) {
+	margin-top: 0;
+	margin-bottom: 0.2em;
+}
+
+pre {
+	margin: 0;
+	margin-bottom: 1em;
+	font-family: "Fira Code", monospace;
+	font-size: 0.8rem;
+	tab-size: 4;
+	white-space: pre-wrap;
+}
