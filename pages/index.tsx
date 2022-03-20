@@ -1,7 +1,6 @@
 import { marked } from "marked";
 import Head from "next/head";
 import Image from "next/image";
-import { useEffect } from "react";
 
 import { Lang } from "../lib/Lang";
 
