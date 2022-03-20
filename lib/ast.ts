@@ -2,44 +2,42 @@ import type { Token } from "./Token";
 import type { InternalValue } from "./types";
 
 export class ASTNode {
-	get type() {
-		return this.constructor.name;
-	}
+	constructor(public readonly type: string) {}
 }
 
 export class ExprLiteral extends ASTNode {
 	constructor(public token: Token, public value: InternalValue) {
-		super();
+		super("ExprLiteral");
 	}
 }
 
 export class ExprBinary extends ASTNode {
 	constructor(public left: ASTNode, public op: Token, public right: ASTNode) {
-		super();
+		super("ExprBinary");
 	}
 }
 
 export class ExprLogical extends ASTNode {
 	constructor(public left: ASTNode, public op: Token, public right: ASTNode) {
-		super();
+		super("ExprLogical");
 	}
 }
 
 export class ExprUnary extends ASTNode {
 	constructor(public op: Token, public right: ASTNode) {
-		super();
+		super("ExprUnary");
 	}
 }
 
 export class ExprVariable extends ASTNode {
 	constructor(public name: Token) {
-		super();
+		super("ExprVariable");
 	}
 }
 
 export class ExprAssign extends ASTNode {
 	constructor(public name: Token, public value: ASTNode) {
-		super();
+		super("ExprAssign");
 	}
 }
 
@@ -49,13 +47,13 @@ export class ExprCall extends ASTNode {
 		public paren: Token,
 		public args: ASTNode[]
 	) {
-		super();
+		super("ExprCall");
 	}
 }
 
 export class ExprList extends ASTNode {
 	constructor(public elements: ASTNode[]) {
-		super();
+		super("ExprList");
 	}
 }
 
@@ -65,7 +63,7 @@ export class ExprGetIndex extends ASTNode {
 		public brack: Token,
 		public index: ASTNode
 	) {
-		super();
+		super("ExprGetIndex");
 	}
 }
 
@@ -76,13 +74,13 @@ export class ExprSetIndex extends ASTNode {
 		public index: ASTNode,
 		public value: ASTNode
 	) {
-		super();
+		super("ExprSetIndex");
 	}
 }
 
 export class StmtExpr extends ASTNode {
 	constructor(public expr: ASTNode) {
-		super();
+		super("StmtExpr");
 	}
 }
 
@@ -92,7 +90,7 @@ export class StmtProcedure extends ASTNode {
 		public params: Token[],
 		public body: ASTNode[]
 	) {
-		super();
+		super("StmtProcedure");
 	}
 }
 
@@ -102,7 +100,7 @@ export class StmtIf extends ASTNode {
 		public thenBody: ASTNode[],
 		public elseBody?: ASTNode[]
 	) {
-		super();
+		super("StmtIf");
 	}
 }
 
@@ -112,13 +110,13 @@ export class StmtRepeatTimes extends ASTNode {
 		public token: Token,
 		public body: ASTNode[]
 	) {
-		super();
+		super("StmtRepeatTimes");
 	}
 }
 
 export class StmtRepeatUntil extends ASTNode {
 	constructor(public condition: ASTNode, public body: ASTNode[]) {
-		super();
+		super("StmtRepeatUntil");
 	}
 }
 
@@ -129,12 +127,12 @@ export class StmtForEach extends ASTNode {
 		public list: ASTNode,
 		public body: ASTNode[]
 	) {
-		super();
+		super("StmtForEach");
 	}
 }
 
 export class StmtReturn extends ASTNode {
 	constructor(public token: Token, public value: ASTNode) {
-		super();
+		super("StmtReturn");
 	}
 }
