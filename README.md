@@ -24,18 +24,18 @@ Shown below are a few sample programs that show off some features.
 ```
 PROCEDURE fib(n)
 {
-	IF(n ≤ 1)
-	{
-		RETURN(n)
-	}
-	RETURN(fib(n - 1) + fib(n - 2))
+  IF(n ≤ 1)
+  {
+    RETURN(n)
+  }
+  RETURN(fib(n - 1) + fib(n - 2))
 }
 
 i ← 1
 REPEAT 10 TIMES
 {
-	DISPLAY(fib(i))
-	i ← i + 1
+  DISPLAY(fib(i))
+  i ← i + 1
 }
 ```
 
@@ -49,9 +49,9 @@ list ← [1, 1]
 
 REPEAT 10 TIMES
 {
-	length ← LENGTH(list)
-	next ← list[length] * length
-	APPEND(list, next)
+  length ← LENGTH(list)
+  next ← list[length] * length
+  APPEND(list, next)
 }
 
 DISPLAY(list)
@@ -65,11 +65,11 @@ DISPLAY(list)
 ```
 PROCEDURE add(x)
 {
-	PROCEDURE addX(y)
-	{
-		RETURN(x + y)
-	}
-	RETURN(addX)
+  PROCEDURE addX(y)
+  {
+    RETURN(x + y)
+  }
+  RETURN(addX)
 }
 
 add5 ← add(5)

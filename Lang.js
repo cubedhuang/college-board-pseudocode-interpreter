@@ -51,10 +51,10 @@ export class Lang {
 				const end = input.selectionEnd;
 
 				input.value =
-					text.substring(0, start) + "\t" + text.substring(end);
+					text.substring(0, start) + "  " + text.substring(end);
 
-				input.selectionStart = this.selectionEnd = start + 1;
-				input.selectionEnd = this.selectionEnd = start + 1;
+				input.selectionStart = this.selectionEnd = start + 2;
+				input.selectionEnd = this.selectionEnd = start + 2;
 			}
 		});
 
