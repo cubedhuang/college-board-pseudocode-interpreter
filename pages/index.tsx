@@ -21,6 +21,12 @@ export default function Home({ html }: AboutProps) {
 	if (typeof window === "object") {
 		// @ts-expect-error
 		window.lang = new Lang();
+
+		for (const details of Array.from(
+			document.getElementsByTagName("details")
+		)) {
+			details.open = true;
+		}
 	}
 
 	return (
