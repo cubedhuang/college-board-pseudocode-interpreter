@@ -58,6 +58,26 @@ DISPLAY(list)
 
 </details>
 
+<details>
+<summary><strong>Closures</strong></summary>
+
+```
+PROCEDURE add(x)
+{
+	PROCEDURE addX(y)
+	{
+		RETURN(x + y)
+	}
+	RETURN(addX)
+}
+
+add5 ← add(5)
+
+DISPLAY(add5(10))
+```
+
+</details>
+
 ## Operator Precedence
 
 | Operators          | Associativity | Description      |
