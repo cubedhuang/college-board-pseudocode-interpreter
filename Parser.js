@@ -49,6 +49,7 @@ export class Parser {
 		} catch (err) {
 			if (err instanceof ParseError) {
 				Lang.error(err.token.line, err.token.col, err.message);
+				return;
 			}
 
 			throw err;
@@ -319,11 +320,12 @@ export class Parser {
 
 				expr = new ExprCall(expr, this.previous(), args);
 			} else if (this.match(TokenType.LBRACK)) {
+				const brack = this.previous();
 				const index = this.expr();
 
 				this.consume(TokenType.RBRACK, "Expected ']' after index.");
 
-				expr = new ExprGetIndex(expr, this.previous(), index);
+				expr = new ExprGetIndex(expr, brack, index);
 			} else {
 				break;
 			}

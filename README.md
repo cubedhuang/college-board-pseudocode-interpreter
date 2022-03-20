@@ -10,7 +10,8 @@ Making this was heavily inspired by Robert Nystron's book [Crafting Interpreters
 
 -   [ ] The `INPUT` native procedure isn't implemented yet, but it should be simple to make a nice interface for it since the interpreter already uses async/await.
 -   [x] Errors are thrown in the console, but they should appear in the UI. ...Actually, error handling is just really bad in general, so that needs to be fixed.
--   [ ] Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
+-   [x] Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
+-   [ ] A robot simulation and procedure implementations need to be implemented.
 -   [ ] There might be bugs that need fixing; this wasn't tested extensively.
 
 ## Sample Code
@@ -78,6 +79,13 @@ DISPLAY(add5(10))
 
 </details>
 
+## Weird Quirks
+
+Here are a few quirks of this language that I find interesting.
+
+1. When a list is assigned to a variable, it's specified that it's a "copy" of the original list, not a reference to the original list. That means that assigning a list to a new variable is equivalent to copying the original list. This is really weird since it doesn't say the same thing for procedure parameters, so there is a difference in the way they behave.
+2. Lists are **1-indexed**. This is terrible.
+
 ## Operator Precedence
 
 | Operators          | Associativity | Description      |
@@ -136,9 +144,9 @@ and             : not ( "AND" not )* ;
 
 not             : ( "NOT" )? equality ;
 
-equality        : relational ( ( "=" | "≠" ) relational )* ;
+equality        : comparison ( ( "=" | "≠" ) comparison )* ;
 
-relational      : arithmetic ( ( ">" | "≥" | "<" | "≤" ) arithmetic )* ;
+comparison      : arithmetic ( ( ">" | "≥" | "<" | "≤" ) arithmetic )* ;
 
 arithmetic      : term ( ( "+" | "-" ) term )* ;
 
@@ -171,8 +179,9 @@ There are a few differences or additions to the original reference sheet in this
 3. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
 4. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
 5. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
-6. Obviously College Board doesn't specify how to handle errors, so this interpreter is relatively lenient with types; it uses the same truthiness and mostly the same casting rules as JavaScript.
-7. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
+6. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
+7. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
+8. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
 
 ```
 a ← 1 b ← 1

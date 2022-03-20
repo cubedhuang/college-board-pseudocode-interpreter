@@ -46,6 +46,7 @@ textarea {
 	color: #fff;
 	border: none;
 	font-family: "Fira Code", monospace;
+	font-variant-ligatures: none;
 	font-size: 1.2rem;
 	tab-size: 4;
 }
@@ -83,6 +84,7 @@ h3.symbol-header {
 	line-height: 1.5em;
 	font: inherit;
 	font-family: "Fira Code", monospace;
+	font-variant-ligatures: none;
 	font-size: 1.2rem;
 	font-weight: bold;
 	color: #fff;
@@ -122,6 +124,7 @@ pre {
 	margin: 0;
 	margin-bottom: 1em;
 	font-family: "Fira Code", monospace;
+	font-variant-ligatures: none;
 	font-size: 0.8rem;
 	tab-size: 4;
 	white-space: pre-wrap;

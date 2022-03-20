@@ -79,7 +79,7 @@ export class Env {
 			return this.parent.get(name);
 		}
 
-		throw new RuntimeError(name, `Undefined variable '${name}'.`);
+		throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
 	}
 
 	/**
@@ -180,7 +180,7 @@ export class Interpreter {
 			"LENGTH",
 			new LangNative("LENGTH", 1, list => {
 				if (!(list instanceof LangList)) {
-					throw new Error("First argument must be a list.");
+					throw new Error("Argument must be a list.");
 				}
 
 				return list.length;
@@ -234,20 +234,26 @@ export class Interpreter {
 		const right = await this.visit(node.right);
 
 		switch (node.op.type) {
+			case TokenType.NEQ:
+				return left !== right;
+			case TokenType.EQ:
+				return left === right;
+		}
+
+		if (typeof left !== "number" || typeof right !== "number") {
+			throw new RuntimeError(node.op, "Operands must be numbers.");
+		}
+
+		switch (node.op.type) {
 			case TokenType.PLUS:
-				// @ts-expect-error
 				return left + right;
 			case TokenType.MINUS:
-				// @ts-expect-error
 				return left - right;
 			case TokenType.STAR:
-				// @ts-expect-error
 				return left * right;
 			case TokenType.SLASH:
-				// @ts-expect-error
 				return left / right;
 			case TokenType.MOD:
-				// @ts-expect-error
 				return left % right;
 			case TokenType.GT:
 				return left > right;
@@ -257,10 +263,6 @@ export class Interpreter {
 				return left < right;
 			case TokenType.LE:
 				return left <= right;
-			case TokenType.NEQ:
-				return left !== right;
-			case TokenType.EQ:
-				return left === right;
 			default:
 				throw new RuntimeError(
 					node.op,

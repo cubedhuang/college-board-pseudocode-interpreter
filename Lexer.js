@@ -113,6 +113,22 @@ export class Lexer {
 			this.next();
 		}
 
+		if (this.peek() === ".") {
+			this.next();
+
+			if (!this.isNumber(this.peek())) {
+				Lang.error(
+					this.line,
+					this.col - 1,
+					"Invalid number termination."
+				);
+			}
+
+			while (this.isNumber(this.peek())) {
+				this.next();
+			}
+		}
+
 		this.addToken(TokenType.NUMBER);
 	}
 
