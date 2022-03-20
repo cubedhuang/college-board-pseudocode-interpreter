@@ -15,6 +15,10 @@ async function main() {
 
 	const aboutHtml = await fetch("./README.md").then(res => res.text());
 	document.getElementById("about").innerHTML = marked.parse(aboutHtml);
+
+	for (const details of document.getElementsByTagName("details")) {
+		details.open = true;
+	}
 }
 
 main();
