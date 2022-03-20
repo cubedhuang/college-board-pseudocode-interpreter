@@ -66,10 +66,12 @@ export class LangProcedure extends LangCallable {
 	/**
 	 * @param {string} name
 	 * @param {StmtProcedure} stmt
+	 * @param {Env} env
 	 */
-	constructor(name, stmt) {
+	constructor(name, stmt, env) {
 		super(name, stmt.params.length);
 		this.stmt = stmt;
+		this.env = env;
 	}
 
 	/**
@@ -78,7 +80,7 @@ export class LangProcedure extends LangCallable {
 	 * @returns {Promise<InternalValue>}
 	 */
 	async call(interpreter, args) {
-		const env = new Env(interpreter.env);
+		const env = new Env(this.env);
 
 		for (let i = 0; i < args.length; i++) {
 			env.define(this.stmt.params[i].lexeme, args[i]);

@@ -148,9 +148,11 @@ There are a few differences or additions to the original reference sheet in this
 
 1. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
 2. The College Board doesn't specify that logical operators should short-circuit, but it's pretty logical that they should exist.
-3. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
-4. Obviously College Board doesn't specify how to handle errors, so this interpreter is relatively lenient with types; it uses the same truthiness and mostly the same casting rules as JavaScript.
-5. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
+3. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
+4. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
+5. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
+6. Obviously College Board doesn't specify how to handle errors, so this interpreter is relatively lenient with types; it uses the same truthiness and mostly the same casting rules as JavaScript.
+7. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
 
 ```
 a ← 1 b ← 1

@@ -391,7 +391,7 @@ export class Interpreter {
 	 * @param {StmtProcedure} node
 	 */
 	async visitStmtProcedure(node) {
-		const procedure = new LangProcedure(node.name.lexeme, node);
+		const procedure = new LangProcedure(node.name.lexeme, node, this.env);
 		this.env.define(node.name.lexeme, procedure);
 	}
 
