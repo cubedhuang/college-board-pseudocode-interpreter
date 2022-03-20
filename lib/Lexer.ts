@@ -1,10 +1,8 @@
-// @ts-check
-
-import { Lang } from "./Lang.js";
-import { Token, TokenType } from "./Token.js";
+import type { Lang } from "./Lang";
+import { Token, TokenType } from "./Token";
 
 export class Lexer {
-	static singleCharacterTokens = {
+	static singleCharacterTokens: Record<string, TokenType> = {
 		"←": TokenType.ASSIGN,
 		"=": TokenType.EQ,
 		"≠": TokenType.NEQ,
@@ -25,7 +23,7 @@ export class Lexer {
 		",": TokenType.COMMA
 	};
 
-	static keywords = {
+	static keywords: Record<string, TokenType> = {
 		AND: TokenType.AND,
 		EACH: TokenType.EACH,
 		ELSE: TokenType.ELSE,
@@ -49,17 +47,9 @@ export class Lexer {
 	line = 1;
 	col = 1;
 
-	/**
-	 * @type {Token[]}
-	 */
-	tokens = [];
+	tokens: Token[] = [];
 
-	/**
-	 * @param {string} src
-	 */
-	constructor(src) {
-		this.src = src;
-	}
+	constructor(public lang: Lang, public src: string) {}
 
 	makeTokens() {
 		while (this.current < this.src.length) {
@@ -110,7 +100,11 @@ export class Lexer {
 			return;
 		}
 
-		Lang.error(this.line, this.col - 1, `Unexpected character: ${char}`);
+		this.lang.error(
+			this.line,
+			this.col - 1,
+			`Unexpected character: ${char}`
+		);
 	}
 
 	makeNumber() {
@@ -122,7 +116,7 @@ export class Lexer {
 			this.next();
 
 			if (!this.isNumber(this.peek())) {
-				Lang.error(
+				this.lang.error(
 					this.line,
 					this.col - 1,
 					"Invalid number termination."
@@ -168,10 +162,7 @@ export class Lexer {
 		this.addToken(TokenType.STRING);
 	}
 
-	/**
-	 * @param {TokenType} type
-	 */
-	addToken(type) {
+	addToken(type: TokenType) {
 		const col = this.col - (this.current - this.start);
 
 		this.tokens.push(
@@ -184,17 +175,11 @@ export class Lexer {
 		);
 	}
 
-	/**
-	 * @param {string} char
-	 */
-	isNumber(char) {
+	isNumber(char: string) {
 		return char >= "0" && char <= "9";
 	}
 
-	/**
-	 * @param {string} char
-	 */
-	isAlpha(char) {
+	isAlpha(char: string) {
 		return (
 			(char >= "a" && char <= "z") ||
 			(char >= "A" && char <= "Z") ||
@@ -202,10 +187,7 @@ export class Lexer {
 		);
 	}
 
-	/**
-	 * @param {string} char
-	 */
-	isAlphaNumeric(char) {
+	isAlphaNumeric(char: string) {
 		return this.isNumber(char) || this.isAlpha(char);
 	}
 

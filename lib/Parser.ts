@@ -1,5 +1,3 @@
-// @ts-check
-
 import {
 	ASTNode,
 	ExprAssign,
@@ -19,36 +17,27 @@ import {
 	StmtRepeatTimes,
 	StmtRepeatUntil,
 	StmtReturn
-} from "./ast.js";
-import { Lang } from "./Lang.js";
-import { Token, TokenType } from "./Token.js";
+} from "./ast";
+import type { Lang } from "./Lang";
+import { Token, TokenType } from "./Token";
 
 export class ParseError extends Error {
-	/**
-	 * @param {Token} token
-	 * @param {string} message
-	 */
-	constructor(token, message) {
+	constructor(public token: Token, message: string) {
 		super(message);
-		this.token = token;
 	}
 }
 
 export class Parser {
-	/**
-	 * @param {Token[]} tokens
-	 */
-	constructor(tokens) {
-		this.tokens = tokens;
-		this.i = 0;
-	}
+	i = 0;
+
+	constructor(public lang: Lang, public tokens: Token[]) {}
 
 	parse() {
 		try {
 			return this.program();
 		} catch (err) {
 			if (err instanceof ParseError) {
-				Lang.error(err.token.line, err.token.col, err.message);
+				this.lang.error(err.token.line, err.token.col, err.message);
 				return;
 			}
 
@@ -102,10 +91,7 @@ export class Parser {
 		return new StmtExpr(this.expr());
 	}
 
-	/**
-	 * @returns {StmtProcedure}
-	 */
-	procedureStmt() {
+	procedureStmt(): StmtProcedure {
 		const name = this.consume(TokenType.ID, "Expected procedure name.");
 
 		this.consume(TokenType.LPAREN, "Expected '(' after procedure name.");
@@ -127,10 +113,7 @@ export class Parser {
 		return new StmtProcedure(name, parameters, body);
 	}
 
-	/**
-	 * @returns {StmtIf}
-	 */
-	ifStmt() {
+	ifStmt(): StmtIf {
 		this.consume(TokenType.LPAREN, "Expected '(' after 'IF'.");
 
 		const condition = this.expr();
@@ -148,10 +131,7 @@ export class Parser {
 		return new StmtIf(condition, thenBranch, elseBranch);
 	}
 
-	/**
-	 * @returns {StmtRepeatUntil | StmtRepeatTimes}
-	 */
-	repeatStmt() {
+	repeatStmt(): StmtRepeatUntil | StmtRepeatTimes {
 		if (this.match(TokenType.UNTIL)) {
 			this.consume(TokenType.LPAREN, "Expected '(' after 'UNTIL'.");
 
@@ -165,18 +145,16 @@ export class Parser {
 		}
 
 		const times = this.expr();
-
-		this.consume(TokenType.TIMES, "Expected 'TIMES' after expression.");
-
+		const token = this.consume(
+			TokenType.TIMES,
+			"Expected 'TIMES' after expression."
+		);
 		const body = this.block("repeat body");
 
-		return new StmtRepeatTimes(times, body);
+		return new StmtRepeatTimes(times, token, body);
 	}
 
-	/**
-	 * @returns {ASTNode}
-	 */
-	forEachStmt() {
+	forEachStmt(): ASTNode {
 		this.consume(TokenType.EACH, "Expected 'EACH' after 'FOR'.");
 
 		const variable = this.consume(
@@ -212,10 +190,7 @@ export class Parser {
 		return this.assign();
 	}
 
-	/**
-	 * @returns {ASTNode}
-	 */
-	assign() {
+	assign(): ASTNode {
 		const expr = this.or();
 
 		if (this.match(TokenType.ASSIGN)) {
@@ -247,7 +222,7 @@ export class Parser {
 		return this.binary(ExprLogical, this.not, [TokenType.AND]);
 	}
 
-	not() {
+	not(): ASTNode {
 		if (this.match(TokenType.NOT)) {
 			const operator = this.previous();
 			const right = this.not();
@@ -289,10 +264,7 @@ export class Parser {
 		]);
 	}
 
-	/**
-	 * @returns {ASTNode}
-	 */
-	factor() {
+	factor(): ASTNode {
 		if (this.match(TokenType.MINUS)) {
 			const operator = this.previous();
 			const right = this.call();
@@ -334,10 +306,7 @@ export class Parser {
 		return expr;
 	}
 
-	/**
-	 * @returns {ASTNode}
-	 */
-	primary() {
+	primary(): ASTNode {
 		if (this.match(TokenType.FALSE))
 			return new ExprLiteral(this.previous(), false);
 		if (this.match(TokenType.TRUE))
@@ -391,13 +360,12 @@ export class Parser {
 		return new ExprList(elements);
 	}
 
-	/**
-	 * @param {typeof ExprBinary | typeof ExprLogical} ClassType
-	 * @param {() => ASTNode} leftExpr
-	 * @param {TokenType[]} operators
-	 * @param {() => ASTNode} rightExpr
-	 */
-	binary(ClassType, leftExpr, operators, rightExpr = leftExpr) {
+	binary(
+		ClassType: typeof ExprBinary | typeof ExprLogical,
+		leftExpr: () => ASTNode,
+		operators: TokenType[],
+		rightExpr: () => ASTNode = leftExpr
+	) {
 		leftExpr = leftExpr.bind(this);
 		rightExpr = rightExpr.bind(this);
 
@@ -413,19 +381,12 @@ export class Parser {
 		return expr;
 	}
 
-	/**
-	 * @param {TokenType} type
-	 * @param {string} message
-	 */
-	consume(type, message) {
+	consume(type: TokenType, message: string) {
 		if (this.check(type)) return this.next();
 		throw new ParseError(this.peek(), message);
 	}
 
-	/**
-	 * @param {...TokenType} types
-	 */
-	match(...types) {
+	match(...types: TokenType[]) {
 		if (this.check(...types)) {
 			this.next();
 			return true;
@@ -434,10 +395,7 @@ export class Parser {
 		return false;
 	}
 
-	/**
-	 * @param {...TokenType} types
-	 */
-	check(...types) {
+	check(...types: TokenType[]) {
 		return types.includes(this.peek().type);
 	}
 

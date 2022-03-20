@@ -1,6 +1,4 @@
-// @ts-check
-
-import {
+import type {
 	ASTNode,
 	ExprAssign,
 	ExprBinary,
@@ -19,60 +17,36 @@ import {
 	StmtRepeatTimes,
 	StmtRepeatUntil,
 	StmtReturn
-} from "./ast.js";
-import { Lang } from "./Lang.js";
-import { Token, TokenType } from "./Token.js";
+} from "./ast";
+import type { Lang } from "./Lang";
+import { Token, TokenType } from "./Token";
 import {
+	InternalValue,
 	LangCallable,
 	LangList,
 	LangNative,
 	LangProcedure,
 	Return
-} from "./types.js";
+} from "./types";
 
 export class RuntimeError extends Error {
-	/**
-	 * @param {Token} token
-	 * @param {string} message
-	 */
-	constructor(token, message) {
+	constructor(public token: Token, message: string) {
 		super(`RuntimeError: ${message}`);
-		this.token = token;
 	}
 }
 
-/**
- * @typedef {import("./types").InternalValue} InternalValue
- */
-
 export class Env {
-	/**
-	 * @type {Map<string, InternalValue>}
-	 */
-	values = new Map();
+	values: Map<string, InternalValue> = new Map();
 
-	/**
-	 * @param {Env | null} parent
-	 */
-	constructor(parent = null) {
-		this.parent = parent;
+	constructor(public parent: Env | null = null) {}
+
+	has(name: string): boolean {
+		return (this.values.has(name) || this.parent?.has(name)) ?? false;
 	}
 
-	/**
-	 * @param {string} name
-	 * @returns {boolean}
-	 */
-	has(name) {
-		return this.values.has(name) || this.parent?.has(name);
-	}
-
-	/**
-	 * @param {Token} name
-	 * @returns {InternalValue}
-	 */
-	get(name) {
+	get(name: Token): InternalValue {
 		if (this.values.has(name.lexeme)) {
-			return this.values.get(name.lexeme);
+			return this.values.get(name.lexeme)!;
 		}
 
 		if (this.parent) {
@@ -82,11 +56,7 @@ export class Env {
 		throw new RuntimeError(name, `Undefined variable '${name.lexeme}'.`);
 	}
 
-	/**
-	 * @param {string} name
-	 * @param {InternalValue} value
-	 */
-	set(name, value) {
+	set(name: string, value: InternalValue) {
 		if (this.parent?.has(name)) {
 			this.parent.set(name, value);
 		} else {
@@ -94,11 +64,7 @@ export class Env {
 		}
 	}
 
-	/**
-	 * @param {string} name
-	 * @param {InternalValue} value
-	 */
-	define(name, value) {
+	define(name: string, value: InternalValue) {
 		this.values.set(name, value);
 	}
 }
@@ -108,7 +74,7 @@ export class Interpreter {
 	env = new Env();
 	inProcedure = false;
 
-	constructor() {
+	constructor(public lang: Lang) {
 		this.env.define(
 			"DISPLAY",
 			new LangNative("DISPLAY", 1, value => {
@@ -188,10 +154,7 @@ export class Interpreter {
 		);
 	}
 
-	/**
-	 * @param {ASTNode[]} statements
-	 */
-	async interpret(statements) {
+	async interpret(statements: ASTNode[]) {
 		this.output = "";
 
 		try {
@@ -200,36 +163,27 @@ export class Interpreter {
 			}
 		} catch (err) {
 			if (err instanceof RuntimeError) {
-				Lang.error(err.token.line, err.token.col, err.message);
+				this.lang.error(err.token.line, err.token.col, err.message);
 			} else {
 				throw err;
 			}
 		}
 	}
 
-	/**
-	 * @param {ASTNode} node
-	 * @returns {Promise<InternalValue>}
-	 */
-	async visit(node) {
+	async visit(node: ASTNode): Promise<InternalValue> {
 		if (!(`visit${node.type}` in this)) {
 			throw new Error(`No visit${node.type} method.`);
 		}
 
+		// @ts-expect-error
 		return await this[`visit${node.type}`].call(this, node);
 	}
 
-	/**
-	 * @param {ExprLiteral} node
-	 */
-	async visitExprLiteral(node) {
+	async visitExprLiteral(node: ExprLiteral) {
 		return node.value;
 	}
 
-	/**
-	 * @param {ExprBinary} node
-	 */
-	async visitExprBinary(node) {
+	async visitExprBinary(node: ExprBinary) {
 		const left = await this.visit(node.left);
 		const right = await this.visit(node.right);
 
@@ -278,10 +232,7 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {ExprLogical} node
-	 */
-	async visitExprLogical(node) {
+	async visitExprLogical(node: ExprLogical) {
 		const left = await this.visit(node.left);
 
 		if (node.op.type === TokenType.OR) {
@@ -291,14 +242,17 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {ExprUnary} node
-	 */
-	async visitExprUnary(node) {
+	async visitExprUnary(node: ExprUnary) {
 		const right = await this.visit(node.right);
 
 		switch (node.op.type) {
 			case TokenType.MINUS:
+				if (typeof right !== "number") {
+					throw new RuntimeError(
+						node.op,
+						"Operand must be a number."
+					);
+				}
 				return -right;
 			case TokenType.NOT:
 				return !right;
@@ -310,17 +264,11 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {ExprVariable} node
-	 */
-	async visitExprVariable(node) {
+	async visitExprVariable(node: ExprVariable) {
 		return this.env.get(node.name);
 	}
 
-	/**
-	 * @param {ExprAssign} node
-	 */
-	async visitExprAssign(node) {
+	async visitExprAssign(node: ExprAssign) {
 		let value = await this.visit(node.value);
 		if (value instanceof LangList) {
 			value = value.copy();
@@ -329,10 +277,7 @@ export class Interpreter {
 		return value;
 	}
 
-	/**
-	 * @param {ExprCall} node
-	 */
-	async visitExprCall(node) {
+	async visitExprCall(node: ExprCall) {
 		const callee = await this.visit(node.callee);
 
 		if (!(callee instanceof LangCallable)) {
@@ -371,10 +316,7 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {ExprList} node
-	 */
-	async visitExprList(node) {
+	async visitExprList(node: ExprList) {
 		const values = [];
 
 		for (const expr of node.elements) {
@@ -384,10 +326,7 @@ export class Interpreter {
 		return new LangList(values);
 	}
 
-	/**
-	 * @param {ExprGetIndex} node
-	 */
-	async visitExprGetIndex(node) {
+	async visitExprGetIndex(node: ExprGetIndex) {
 		const list = await this.visit(node.list);
 		const index = await this.visit(node.index);
 
@@ -422,10 +361,7 @@ export class Interpreter {
 		return list.get(index);
 	}
 
-	/**
-	 * @param {ExprSetIndex} node
-	 */
-	async visitExprSetIndex(node) {
+	async visitExprSetIndex(node: ExprSetIndex) {
 		const list = await this.visit(node.list);
 		const index = await this.visit(node.index);
 
@@ -449,25 +385,16 @@ export class Interpreter {
 		return value;
 	}
 
-	/**
-	 * @param {StmtExpr} node
-	 */
-	async visitStmtExpr(node) {
+	async visitStmtExpr(node: StmtExpr) {
 		await this.visit(node.expr);
 	}
 
-	/**
-	 * @param {StmtProcedure} node
-	 */
-	async visitStmtProcedure(node) {
+	async visitStmtProcedure(node: StmtProcedure) {
 		const procedure = new LangProcedure(node.name.lexeme, node, this.env);
 		this.env.define(node.name.lexeme, procedure);
 	}
 
-	/**
-	 * @param {StmtIf} node
-	 */
-	async visitStmtIf(node) {
+	async visitStmtIf(node: StmtIf) {
 		if (await this.visit(node.condition)) {
 			await this.visitBlock(node.thenBody, new Env(this.env));
 		} else if (node.elseBody) {
@@ -475,21 +402,19 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {StmtRepeatTimes} node
-	 */
-	async visitStmtRepeatTimes(node) {
+	async visitStmtRepeatTimes(node: StmtRepeatTimes) {
 		const times = await this.visit(node.times);
+
+		if (typeof times !== "number") {
+			throw new RuntimeError(node.token, `'${times}' must be a number.`);
+		}
 
 		for (let i = 0; i < times; i++) {
 			await this.visitBlock(node.body, new Env(this.env));
 		}
 	}
 
-	/**
-	 * @param {StmtForEach} node
-	 */
-	async visitStmtForEach(node) {
+	async visitStmtForEach(node: StmtForEach) {
 		const list = await this.visit(node.list);
 
 		if (!(list instanceof LangList)) {
@@ -503,34 +428,24 @@ export class Interpreter {
 		}
 	}
 
-	/**
-	 * @param {StmtRepeatUntil} node
-	 */
-	async visitStmtRepeatUntil(node) {
+	async visitStmtRepeatUntil(node: StmtRepeatUntil) {
 		while (!(await this.visit(node.condition))) {
 			await this.visitBlock(node.body, new Env(this.env));
 		}
 	}
 
-	/**
-	 * @param {StmtReturn} node
-	 */
-	async visitStmtReturn(node) {
+	async visitStmtReturn(node: StmtReturn) {
 		if (!this.inProcedure) {
 			throw new RuntimeError(
 				node.token,
 				"Cannot return outside of a procedure."
 			);
 		}
-		const value = node.value ? await this.visit(node.value) : undefined;
+		const value = node.value ? await this.visit(node.value) : null;
 		throw new Return(value);
 	}
 
-	/**
-	 * @param {ASTNode[]} nodes
-	 * @param {Env} env
-	 */
-	async visitBlock(nodes, env) {
+	async visitBlock(nodes: ASTNode[], env: Env) {
 		const previous = this.env;
 
 		try {

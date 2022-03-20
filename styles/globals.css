@@ -25,7 +25,7 @@ h2 {
 textarea {
 	width: 100%;
 	resize: vertical;
-	padding: 1em;
+	padding: 1em 0.5em;
 	background: #0b0f1a;
 	color: #fff;
 	border: none;

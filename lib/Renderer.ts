@@ -1,6 +1,4 @@
-// @ts-check
-
-import {
+import type {
 	ASTNode,
 	ExprAssign,
 	ExprBinary,
@@ -24,130 +22,76 @@ import {
 export class Renderer {
 	indent = 0;
 
-	/**
-	 * @param {ASTNode | ASTNode[]} node
-	 * @returns {string}
-	 */
-	render(node, join = "\n") {
+	render(node: ASTNode | ASTNode[], join = "\n"): string {
 		if (Array.isArray(node)) {
 			return node.map(n => this.render(n)).join(join);
 		}
 
-		if (!this[`visit${node.type}`]) {
-			throw new Error(`Unknown node type: ${node.type}`);
+		if (!(`visit${node.type}` in this)) {
+			throw new Error(`No visit${node.type} method.`);
 		}
 
-		return (
-			(node.type.includes("Stmt") ? this.indents : "") +
-			this[`visit${node.type}`].call(this, node)
-		);
+		// @ts-expect-error
+		return this[`visit${node.type}`].call(this, node);
 	}
 
-	/**
-	 * @param {ExprLiteral} node
-	 * @returns {string}
-	 */
-	visitExprLiteral(node) {
+	visitExprLiteral(node: ExprLiteral): string {
 		if (typeof node.value === "string") {
 			return `"${node.value}"`;
 		}
 		return `${node.value}`;
 	}
 
-	/**
-	 * @param {ExprBinary} node
-	 * @returns {string}
-	 */
-	visitExprBinary(node) {
+	visitExprBinary(node: ExprBinary): string {
 		return `(${this.render(node.left)} ${node.op.lexeme} ${this.render(
 			node.right
 		)})`;
 	}
 
-	/**
-	 * @param {ExprLogical} node
-	 * @returns {string}
-	 */
-	visitExprLogical(node) {
+	visitExprLogical(node: ExprLogical): string {
 		return `(${this.render(node.left)} ${node.op.lexeme} ${this.render(
 			node.right
 		)})`;
 	}
 
-	/**
-	 * @param {ExprUnary} node
-	 * @returns {string}
-	 */
-	visitExprUnary(node) {
+	visitExprUnary(node: ExprUnary): string {
 		return `(${node.op.lexeme} ${this.render(node.right)})`;
 	}
 
-	/**
-	 * @param {ExprVariable} node
-	 * @returns {string}
-	 */
-	visitExprVariable(node) {
+	visitExprVariable(node: ExprVariable): string {
 		return `$${node.name.lexeme}`;
 	}
 
-	/**
-	 * @param {ExprAssign} node
-	 * @returns {string}
-	 */
-	visitExprAssign(node) {
+	visitExprAssign(node: ExprAssign): string {
 		return `($${node.name.lexeme} ← ${this.render(node.value)})`;
 	}
 
-	/**
-	 * @param {ExprCall} node
-	 * @returns {string}
-	 */
-	visitExprCall(node) {
+	visitExprCall(node: ExprCall): string {
 		return `(${this.render(node.callee)} (${this.render(
 			node.args,
 			", "
 		)}))`;
 	}
 
-	/**
-	 * @param {ExprList} node
-	 * @returns {string}
-	 */
-	visitExprList(node) {
+	visitExprList(node: ExprList): string {
 		return `[${this.render(node.elements, ", ")}]`;
 	}
 
-	/**
-	 * @param {ExprGetIndex} node
-	 * @returns {string}
-	 */
-	visitExprGetIndex(node) {
+	visitExprGetIndex(node: ExprGetIndex): string {
 		return `(${this.render(node.list)}[${this.render(node.index)}])`;
 	}
 
-	/**
-	 * @param {ExprSetIndex} node
-	 * @returns {string}
-	 */
-	visitExprSetIndex(node) {
+	visitExprSetIndex(node: ExprSetIndex): string {
 		return `(${this.render(node.list)}[${this.render(
 			node.index
 		)}] ← ${this.render(node.value)})`;
 	}
 
-	/**
-	 * @param {StmtExpr} node
-	 * @returns {string}
-	 */
-	visitStmtExpr(node) {
+	visitStmtExpr(node: StmtExpr): string {
 		return `EXPR ${this.render(node.expr)}`;
 	}
 
-	/**
-	 * @param {StmtProcedure} node
-	 * @returns {string}
-	 */
-	visitStmtProcedure(node) {
+	visitStmtProcedure(node: StmtProcedure): string {
 		const start = `PROCEDURE $${node.name.lexeme} (${node.params
 			.map(param => `$${param.lexeme}`)
 			.join(", ")}) {\n`;
@@ -159,11 +103,7 @@ export class Renderer {
 		return `${start}${body}\n${this.indents}}`;
 	}
 
-	/**
-	 * @param {StmtIf} node
-	 * @returns {string}
-	 */
-	visitStmtIf(node) {
+	visitStmtIf(node: StmtIf): string {
 		const start = `IF ${this.render(node.condition)} {\n`;
 
 		this.indent++;
@@ -180,11 +120,7 @@ export class Renderer {
 		return `${start}${thenBody}\n${this.indents}} ELSE {\n${elseBody}\n${this.indents}}`;
 	}
 
-	/**
-	 * @param {StmtRepeatTimes} node
-	 * @returns {string}
-	 */
-	visitStmtRepeatTimes(node) {
+	visitStmtRepeatTimes(node: StmtRepeatTimes): string {
 		const start = `REPEAT ${this.render(node.times)} TIMES {\n`;
 
 		this.indent++;
@@ -194,11 +130,7 @@ export class Renderer {
 		return `${start}${body}\n${this.indents}}`;
 	}
 
-	/**
-	 * @param {StmtRepeatUntil} node
-	 * @returns {string}
-	 */
-	visitStmtRepeatUntil(node) {
+	visitStmtRepeatUntil(node: StmtRepeatUntil): string {
 		const start = `REPEAT UNTIL ${this.render(node.condition)} {\n`;
 
 		this.indent++;
@@ -208,11 +140,7 @@ export class Renderer {
 		return `${start}${body}\n${this.indents}}`;
 	}
 
-	/**
-	 * @param {StmtForEach} node
-	 * @returns {string}
-	 */
-	visitStmtForEach(node) {
+	visitStmtForEach(node: StmtForEach): string {
 		const start = `FOR EACH $${node.name.lexeme} in ${this.render(
 			node.list
 		)} {\n`;
@@ -224,11 +152,7 @@ export class Renderer {
 		return `${start}${body}\n${this.indents}}`;
 	}
 
-	/**
-	 * @param {StmtReturn} node
-	 * @returns {string}
-	 */
-	visitStmtReturn(node) {
+	visitStmtReturn(node: StmtReturn): string {
 		return `RETURN ${this.render(node.value)}`;
 	}
 

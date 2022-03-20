@@ -1,32 +1,28 @@
-// @ts-check
-
-import { Interpreter } from "./Interpreter.js";
-import { Lexer } from "./Lexer.js";
-import { Parser } from "./Parser.js";
-import { Renderer } from "./Renderer.js";
+import { Interpreter } from "./Interpreter";
+import { Lexer } from "./Lexer";
+import { Parser } from "./Parser";
+import { Renderer } from "./Renderer";
 
 export class Lang {
-	static hasError = false;
+	hasError = false;
+	renderer = new Renderer();
+	src = "";
 
-	static renderer = new Renderer();
-
-	static elements = {
-		run: document.getElementById("run"),
-		/**
-		 * @type {HTMLInputElement}
-		 */
-		// @ts-expect-error
-		input: document.getElementById("editor"),
-		symbols: [...document.getElementsByClassName("make-symbol")],
-		output: document.getElementById("output"),
-		ast: document.getElementById("ast"),
-		tokens: document.getElementById("tokens")
+	elements = {
+		run: document.getElementById("run") as HTMLButtonElement,
+		input: document.getElementById("editor") as HTMLTextAreaElement,
+		symbols: Array.from(
+			document.getElementsByClassName("make-symbol")
+		) as HTMLButtonElement[],
+		output: document.getElementById("output") as HTMLPreElement,
+		ast: document.getElementById("ast") as HTMLPreElement,
+		tokens: document.getElementById("tokens") as HTMLPreElement
 	};
 
-	static init() {
+	constructor() {
 		for (const e of this.elements.symbols) {
 			e.addEventListener("click", () => {
-				const text = e.textContent;
+				const text = e.textContent ?? "";
 				const input = this.elements.input;
 
 				const start = input.selectionStart;
@@ -53,8 +49,8 @@ export class Lang {
 				input.value =
 					text.substring(0, start) + "  " + text.substring(end);
 
-				input.selectionStart = this.selectionEnd = start + 2;
-				input.selectionEnd = this.selectionEnd = start + 2;
+				input.selectionStart = start + 2;
+				input.selectionEnd = start + 2;
 			}
 		});
 
@@ -70,27 +66,24 @@ export class Lang {
 		this.elements.input.value = localStorage.getItem("src") || "";
 	}
 
-	/**
-	 * @param {string} src
-	 */
-	static async run(src) {
+	async run(src: string) {
 		this.src = src;
 
 		this.setOutput("");
 
-		const lexer = new Lexer(src);
+		const lexer = new Lexer(this, src);
 		const tokens = lexer.makeTokens();
 		if (!tokens || this.hasError) return;
 		this.elements.tokens.textContent = tokens
 			.map(t => t.toString())
 			.join("\n");
 
-		const parser = new Parser(tokens);
+		const parser = new Parser(this, tokens);
 		const statements = parser.parse();
 		if (!statements || this.hasError) return;
 		this.elements.ast.textContent = this.renderer.render(statements);
 
-		const interpreter = new Interpreter();
+		const interpreter = new Interpreter(this);
 		await interpreter.interpret(statements);
 
 		if (this.hasError) return;
@@ -100,12 +93,7 @@ export class Lang {
 		this.addOutput("-------\nSUCCESS");
 	}
 
-	/**
-	 * @param {number} line
-	 * @param {number} col
-	 * @param {string} message
-	 */
-	static error(line, col, message) {
+	error(line: number, col: number, message: string) {
 		this.hasError = true;
 
 		if (this.output()) this.addOutput("\n");
@@ -116,21 +104,15 @@ export class Lang {
 		this.addOutput(`${l}\n${" ".repeat(col - 1)}^ here`);
 	}
 
-	static output() {
+	output() {
 		return this.elements.output.textContent;
 	}
 
-	/**
-	 * @param {string} output
-	 */
-	static setOutput(output) {
+	setOutput(output: string) {
 		this.elements.output.textContent = output;
 	}
 
-	/**
-	 * @param {string} output
-	 */
-	static addOutput(output) {
+	addOutput(output: string) {
 		this.elements.output.textContent += `${output}`;
 	}
 }
