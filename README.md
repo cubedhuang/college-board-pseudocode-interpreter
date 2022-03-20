@@ -120,7 +120,7 @@ There are a few additions to the original reference sheet in this implementation
 5. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
 6. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
 7. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
-8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
+8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification. The `DISPLAY` procedure returns the displayed value.
 9. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
 
 ```
