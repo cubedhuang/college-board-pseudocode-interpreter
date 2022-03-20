@@ -1,5 +1,6 @@
 // @ts-check
 
+import { Lang } from "./Lang.js";
 import { Token, TokenType } from "./Token.js";
 
 export class Lexer {
@@ -63,17 +64,7 @@ export class Lexer {
 	makeTokens() {
 		while (this.current < this.src.length) {
 			this.start = this.current;
-
-			try {
-				this.makeToken();
-			} catch (e) {
-				if (e instanceof Error) {
-					console.log(
-						`${e.message} at line ${this.line}, column ${this.col}`
-					);
-				}
-				return null;
-			}
+			this.makeToken();
 		}
 
 		this.tokens.push(new Token(TokenType.EOF, "", this.line, this.col));
@@ -90,7 +81,12 @@ export class Lexer {
 			return;
 		}
 
-		if (char === " " || char === "\t" || char === "\r") {
+		if (char === "\t") {
+			this.col += 3;
+			return;
+		}
+
+		if (char === " " || char === "\r") {
 			return;
 		}
 
@@ -109,7 +105,7 @@ export class Lexer {
 			return;
 		}
 
-		throw new Error(`Unexpected character: '${char}'`);
+		Lang.error(this.line, this.col - 1, `Unexpected character: ${char}`);
 	}
 
 	makeNumber() {

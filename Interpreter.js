@@ -20,8 +20,8 @@ import {
 	StmtRepeatUntil,
 	StmtReturn
 } from "./ast.js";
-import { Lang } from "./script.js";
-import { TokenType } from "./Token.js";
+import { Lang } from "./Lang.js";
+import { Token, TokenType } from "./Token.js";
 import {
 	LangCallable,
 	LangList,
@@ -29,6 +29,17 @@ import {
 	LangProcedure,
 	Return
 } from "./types.js";
+
+export class RuntimeError extends Error {
+	/**
+	 * @param {Token} token
+	 * @param {string} message
+	 */
+	constructor(token, message) {
+		super(`RuntimeError: ${message}`);
+		this.token = token;
+	}
+}
 
 /**
  * @typedef {import("./types").InternalValue} InternalValue
@@ -56,19 +67,19 @@ export class Env {
 	}
 
 	/**
-	 * @param {string} name
+	 * @param {Token} name
 	 * @returns {InternalValue}
 	 */
 	get(name) {
-		if (this.values.has(name)) {
-			return this.values.get(name);
+		if (this.values.has(name.lexeme)) {
+			return this.values.get(name.lexeme);
 		}
 
 		if (this.parent) {
 			return this.parent.get(name);
 		}
 
-		throw new Error(`Undefined variable '${name}'.`);
+		throw new RuntimeError(name, `Undefined variable '${name}'.`);
 	}
 
 	/**
@@ -93,6 +104,7 @@ export class Env {
 }
 
 export class Interpreter {
+	output = "";
 	env = new Env();
 	inProcedure = false;
 
@@ -100,7 +112,7 @@ export class Interpreter {
 		this.env.define(
 			"DISPLAY",
 			new LangNative("DISPLAY", 1, value => {
-				Lang.elements.output.textContent += `${value} `;
+				this.output += `${value} `;
 				return value;
 			})
 		);
@@ -109,13 +121,10 @@ export class Interpreter {
 			"RANDOM",
 			new LangNative("RANDOM", 2, (a, b) => {
 				if (typeof a !== "number") {
-					throw new Error("RANDOM: First argument must be a number.");
+					throw new Error("First argument must be a number.");
 				}
-
 				if (typeof b !== "number") {
-					throw new Error(
-						"RANDOM: Second argument must be a number."
-					);
+					throw new Error("Second argument must be a number.");
 				}
 
 				return Math.floor(Math.random() * (b - a + 1)) + a;
@@ -126,12 +135,10 @@ export class Interpreter {
 			"INSERT",
 			new LangNative("INSERT", 3, (list, index, value) => {
 				if (!(list instanceof LangList)) {
-					throw new Error("INSERT: First argument must be a list.");
+					throw new Error("First argument must be a list.");
 				}
 				if (typeof index !== "number") {
-					throw new Error(
-						"INSERT: Second argument must be a number."
-					);
+					throw new Error("Second argument must be a number.");
 				}
 
 				list.insert(index, value);
@@ -144,7 +151,7 @@ export class Interpreter {
 			"APPEND",
 			new LangNative("APPEND", 2, (list, value) => {
 				if (!(list instanceof LangList)) {
-					throw new Error("APPEND: First argument must be a list.");
+					throw new Error("First argument must be a list.");
 				}
 
 				list.append(value);
@@ -157,12 +164,10 @@ export class Interpreter {
 			"REMOVE",
 			new LangNative("REMOVE", 2, (list, index) => {
 				if (!(list instanceof LangList)) {
-					throw new Error("REMOVE: First argument must be a list.");
+					throw new Error("First argument must be a list.");
 				}
 				if (typeof index !== "number") {
-					throw new Error(
-						"REMOVE: Second argument must be a number."
-					);
+					throw new Error("Second argument must be a number.");
 				}
 
 				list.remove(index);
@@ -175,7 +180,7 @@ export class Interpreter {
 			"LENGTH",
 			new LangNative("LENGTH", 1, list => {
 				if (!(list instanceof LangList)) {
-					throw new Error("LENGTH: First argument must be a list.");
+					throw new Error("First argument must be a list.");
 				}
 
 				return list.length;
@@ -187,8 +192,18 @@ export class Interpreter {
 	 * @param {ASTNode[]} statements
 	 */
 	async interpret(statements) {
-		for (const statement of statements) {
-			await this.visit(statement);
+		this.output = "";
+
+		try {
+			for (const statement of statements) {
+				await this.visit(statement);
+			}
+		} catch (err) {
+			if (err instanceof RuntimeError) {
+				Lang.error(err.token.line, err.token.col, err.message);
+			} else {
+				throw err;
+			}
 		}
 	}
 
@@ -247,7 +262,10 @@ export class Interpreter {
 			case TokenType.EQ:
 				return left === right;
 			default:
-				throw new Error(`Unknown operator '${node.op.lexeme}'.`);
+				throw new RuntimeError(
+					node.op,
+					`Unknown operator '${node.op.lexeme}'.`
+				);
 		}
 	}
 
@@ -276,7 +294,10 @@ export class Interpreter {
 			case TokenType.NOT:
 				return !right;
 			default:
-				throw new Error(`Unknown operator '${node.op.lexeme}'.`);
+				throw new RuntimeError(
+					node.op,
+					`Unknown operator '${node.op.lexeme}'.`
+				);
 		}
 	}
 
@@ -284,7 +305,7 @@ export class Interpreter {
 	 * @param {ExprVariable} node
 	 */
 	async visitExprVariable(node) {
-		return this.env.get(node.name.lexeme);
+		return this.env.get(node.name);
 	}
 
 	/**
@@ -306,11 +327,15 @@ export class Interpreter {
 		const callee = await this.visit(node.callee);
 
 		if (!(callee instanceof LangCallable)) {
-			throw new Error(`'${callee}' is not a procedure.`);
+			throw new RuntimeError(
+				node.paren,
+				`'${callee}' is not a procedure.`
+			);
 		}
 
 		if (node.args.length !== callee.arity) {
-			throw new Error(
+			throw new RuntimeError(
+				node.paren,
 				`'${callee.name}': Expected ${callee.arity} arguments but got ${node.args.length}.`
 			);
 		}
@@ -323,10 +348,18 @@ export class Interpreter {
 
 		const prev = this.inProcedure;
 		this.inProcedure = true;
-		const result = await callee.call(this, args);
-		this.inProcedure = prev;
 
-		return result;
+		try {
+			const result = await callee.call(this, args);
+			this.inProcedure = prev;
+			return result;
+		} catch (err) {
+			this.inProcedure = prev;
+			if (err instanceof RuntimeError) throw err;
+			if (err instanceof Error)
+				throw new RuntimeError(node.paren, err.message);
+			throw new RuntimeError(node.paren, `${err}`);
+		}
 	}
 
 	/**
@@ -350,11 +383,18 @@ export class Interpreter {
 		const index = await this.visit(node.index);
 
 		if (!(list instanceof LangList)) {
-			throw new Error(`'${list}' is not a list.`);
+			throw new RuntimeError(node.brack, `'${list}' is not a list.`);
 		}
 
 		if (typeof index !== "number") {
-			throw new Error(`'${index}' is not a number.`);
+			throw new RuntimeError(node.brack, `'${index}' is not a number.`);
+		}
+
+		if (list.outOfBounds(index)) {
+			throw new RuntimeError(
+				node.brack,
+				`Index out of bounds: ${index}.`
+			);
 		}
 
 		return list.get(index);
@@ -368,11 +408,18 @@ export class Interpreter {
 		const index = await this.visit(node.index);
 
 		if (!(list instanceof LangList)) {
-			throw new Error(`'${list}' is not a list.`);
+			throw new RuntimeError(node.brack, `'${list}' is not a list.`);
 		}
 
 		if (typeof index !== "number") {
-			throw new Error(`'${index}' is not a number.`);
+			throw new RuntimeError(node.brack, `'${index}' is not a number.`);
+		}
+
+		if (list.outOfBounds(index)) {
+			throw new RuntimeError(
+				node.brack,
+				`Index out of bounds: ${index}.`
+			);
 		}
 
 		const value = await this.visit(node.value);
@@ -424,7 +471,7 @@ export class Interpreter {
 		const list = await this.visit(node.list);
 
 		if (!(list instanceof LangList)) {
-			throw new Error(`'${list}' is not a list.`);
+			throw new RuntimeError(node.inToken, `'${list}' is not a list.`);
 		}
 
 		for (const value of list.values) {
@@ -448,7 +495,10 @@ export class Interpreter {
 	 */
 	async visitStmtReturn(node) {
 		if (!this.inProcedure) {
-			throw new Error("Cannot return outside of a procedure.");
+			throw new RuntimeError(
+				node.token,
+				"Cannot return outside of a procedure."
+			);
 		}
 		const value = node.value ? await this.visit(node.value) : undefined;
 		throw new Return(value);

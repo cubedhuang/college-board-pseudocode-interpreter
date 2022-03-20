@@ -114,9 +114,7 @@ export class LangList {
 	 * @param {number} i
 	 */
 	get(i) {
-		if (this.values[i - 1] === undefined) {
-			throw new Error(`Index out of bounds: ${i}`);
-		}
+		this.throwIfOutOfBounds(i);
 		return this.values[i - 1];
 	}
 
@@ -125,9 +123,7 @@ export class LangList {
 	 * @param {InternalValue} value
 	 */
 	set(i, value) {
-		if (this.values[i] === undefined) {
-			throw new Error(`Index out of bounds: ${i}`);
-		}
+		this.throwIfOutOfBounds(i);
 		this.values[i - 1] = value;
 	}
 
@@ -136,9 +132,7 @@ export class LangList {
 	 * @param {InternalValue} value
 	 */
 	insert(i, value) {
-		if (this.values[i] === undefined) {
-			throw new Error(`Index out of bounds: ${i}`);
-		}
+		this.throwIfOutOfBounds(i);
 		this.values.splice(i - 1, 0, value);
 	}
 
@@ -153,10 +147,24 @@ export class LangList {
 	 * @param {number} i
 	 */
 	remove(i) {
-		if (this.values[i] === undefined) {
+		this.throwIfOutOfBounds(i);
+		this.values.splice(i - 1, 1);
+	}
+
+	/**
+	 * @param {number} i
+	 */
+	outOfBounds(i) {
+		return i < 1 || i > this.length;
+	}
+
+	/**
+	 * @param {number} i
+	 */
+	throwIfOutOfBounds(i) {
+		if (this.outOfBounds(i)) {
 			throw new Error(`Index out of bounds: ${i}`);
 		}
-		this.values.splice(i - 1, 1);
 	}
 
 	copy() {

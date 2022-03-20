@@ -20,7 +20,19 @@ import {
 	StmtRepeatUntil,
 	StmtReturn
 } from "./ast.js";
+import { Lang } from "./Lang.js";
 import { Token, TokenType } from "./Token.js";
+
+export class ParseError extends Error {
+	/**
+	 * @param {Token} token
+	 * @param {string} message
+	 */
+	constructor(token, message) {
+		super(message);
+		this.token = token;
+	}
+}
 
 export class Parser {
 	/**
@@ -32,14 +44,25 @@ export class Parser {
 	}
 
 	parse() {
-		return this.program();
+		try {
+			return this.program();
+		} catch (err) {
+			if (err instanceof ParseError) {
+				Lang.error(err.token.line, err.token.col, err.message);
+			}
+
+			throw err;
+		}
 	}
 
 	program() {
 		const statements = this.statements();
 
 		if (!this.isAtEnd()) {
-			throw new Error(`Unexpected token: '${this.peek().lexeme}'`);
+			throw new ParseError(
+				this.peek(),
+				`Unexpected token: '${this.peek().lexeme}'`
+			);
 		}
 
 		return statements;
@@ -160,23 +183,28 @@ export class Parser {
 			"Expected variable name after 'EACH'."
 		);
 
-		this.consume(TokenType.IN, "Expected 'IN' after variable name.");
+		const inToken = this.consume(
+			TokenType.IN,
+			"Expected 'IN' after variable name."
+		);
 
 		const list = this.expr();
 
 		const body = this.block("for each body");
 
-		return new StmtForEach(variable, list, body);
+		return new StmtForEach(variable, inToken, list, body);
 	}
 
 	returnStmt() {
+		const token = this.previous();
+
 		this.consume(TokenType.LPAREN, "Expected '(' after 'RETURN'.");
 
 		const value = this.expr();
 
 		this.consume(TokenType.RPAREN, "Expected ')' after return value.");
 
-		return new StmtReturn(value);
+		return new StmtReturn(token, value);
 	}
 
 	expr() {
@@ -190,6 +218,7 @@ export class Parser {
 		const expr = this.or();
 
 		if (this.match(TokenType.ASSIGN)) {
+			const token = this.previous();
 			const value = this.assign();
 
 			if (expr instanceof ExprVariable) {
@@ -203,7 +232,7 @@ export class Parser {
 				);
 			}
 
-			throw new Error("Invalid assignment target.");
+			throw new ParseError(token, "Invalid assignment target.");
 		}
 
 		return expr;
@@ -333,7 +362,8 @@ export class Parser {
 			return this.list();
 		}
 
-		throw new Error(
+		throw new ParseError(
+			this.peek(),
 			`Expected expression, but got '${this.peek().lexeme}'.`
 		);
 	}
@@ -380,7 +410,7 @@ export class Parser {
 	 */
 	consume(type, message) {
 		if (this.check(type)) return this.next();
-		throw new Error(message);
+		throw new ParseError(this.peek(), message);
 	}
 
 	/**

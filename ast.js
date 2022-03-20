@@ -205,12 +205,14 @@ export class StmtRepeatUntil extends ASTNode {
 export class StmtForEach extends ASTNode {
 	/**
 	 * @param {Token} name
+	 * @param {Token} inToken
 	 * @param {ASTNode} list
 	 * @param {ASTNode[]} body
 	 */
-	constructor(name, list, body) {
+	constructor(name, inToken, list, body) {
 		super();
 		this.name = name;
+		this.inToken = inToken;
 		this.list = list;
 		this.body = body;
 	}
@@ -218,10 +220,12 @@ export class StmtForEach extends ASTNode {
 
 export class StmtReturn extends ASTNode {
 	/**
+	 * @param {Token} token
 	 * @param {ASTNode} value
 	 */
-	constructor(value) {
+	constructor(token, value) {
 		super();
+		this.token = token;
 		this.value = value;
 	}
 }
