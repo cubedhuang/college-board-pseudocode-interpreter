@@ -176,6 +176,8 @@ export class LangList {
 	}
 
 	toString() {
-		return `[${this.values.join(", ")}]`;
+		return `[${this.values
+			.map(v => (typeof v === "string" ? `"${v}"` : v))
+			.join(", ")}]`;
 	}
 }
