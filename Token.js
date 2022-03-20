@@ -39,8 +39,9 @@ export const TokenType = {
 	OR: next(),
 
 	// Types.
-	ID: next(),
 	NUMBER: next(),
+	ID: next(),
+	STRING: next(),
 	FALSE: next(),
 	TRUE: next(),
 

@@ -48,6 +48,9 @@ export class Renderer {
 	 * @returns {string}
 	 */
 	visitExprLiteral(node) {
+		if (typeof node.value === "string") {
+			return `"${node.value}"`;
+		}
 		return `${node.value}`;
 	}
 

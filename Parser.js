@@ -353,6 +353,13 @@ export class Parser {
 			return new ExprVariable(this.previous());
 		}
 
+		if (this.match(TokenType.STRING)) {
+			return new ExprLiteral(
+				this.previous(),
+				this.previous().lexeme.slice(1, -1)
+			);
+		}
+
 		if (this.match(TokenType.LPAREN)) {
 			const expr = this.expr();
 			this.consume(TokenType.RPAREN, "Expected ')' after expression.");

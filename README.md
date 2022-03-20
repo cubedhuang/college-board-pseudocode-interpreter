@@ -16,7 +16,7 @@ Making this was heavily inspired by Robert Nystron's book [Crafting Interpreters
 
 ## Sample Code
 
-Shown below are a few sample programs that show off some features.
+Shown below are a few sample programs in the style of code on the APCSP Exam.
 
 <details>
 <summary><strong>Recursive fibbonacci numbers</strong></summary>
@@ -81,10 +81,11 @@ DISPLAY (Add5 (10))
 
 ## Weird Quirks
 
-Here are a few quirks of this language that I find interesting.
+This language has a lot of really weird aspects:
 
 1. When a list is assigned to a variable, it's specified that it's a "copy" of the original list, not a reference to the original list. That means that assigning a list to a new variable is equivalent to copying the original list. This is really weird since it doesn't say the same thing for procedure parameters, so there is a difference in the way they behave.
 2. Lists are **1-indexed**. This is terrible.
+3. There are no comments; good luck trying to figure out what's happening.
 
 ## Operator Precedence
 
@@ -158,6 +159,7 @@ call            : primary ( ( "(" exprList? ")" ) | ( "[" expr "]" ) )* ;
 
 primary         : NUMBER
                 | ID
+                | STRING
                 | "[" exprList? "]"
                 | "(" expr ")" ;
 
@@ -165,6 +167,7 @@ exprList        : expr ( "," expr )* ;
 
 NUMBER          : DIGIT+ ;
 ID              : ALPHA ( ALPHA | DIGIT )* ;
+STRING          : '"' [^"]* '"' ;
 
 DIGIT           : [0-9] ;
 ALPHA           : [a-zA-Z_] ;
@@ -174,14 +177,15 @@ ALPHA           : [a-zA-Z_] ;
 
 There are a few differences or additions to the original reference sheet in this grammar. These include but are not necessarily limited to:
 
-1. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
-2. The College Board doesn't specify that logical operators should short-circuit, but it's pretty logical that they should exist.
-3. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
-4. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
-5. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
-6. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
-7. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
-8. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
+1. Strings aren't specified on the reference sheet, but on practice exam questions they use string literals, so I've gone ahead and added minimal support for strings. String literals are multi-line, there aren't escape sequences, and strings can only start and end with `"`. They can be concatenated, and adding strings with other types will cast those types to their string variants. Strings can be indexed (with 1-indexing to be consist with lists) but can't be modified since they should act immutable. The `LENGTH` method will return the length of a string. This pretty fun because strings make it possible to write programs to interpret esoteric languages like Brainf\*ck.
+2. `AND` and `OR` don't have a specified precendece on the reference sheet, but in most languages, `OR` has a lower precedence than `AND`, so that was added to the grammar.
+3. The College Board doesn't specify that logical operators should short-circuit, but it's pretty logical that they should exist.
+4. College Board doesn't say anything about variable scoping and assignment, so I went with block-scoping. When an assignment expression is used, if the variable on the left-hand side is not already declared, it is declared in the current block. If the variable already exists in a parent scope, then that variable is used. This way, the only way to shadow a variable is through procedure parameters.
+5. It's never specified what type of values can be `RETURN`ed, so everything is allowed. Allowing procedures to be returned has the side effect of adding closures.
+6. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
+7. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
+8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification.
+9. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
 
 ```
 a ← 1 b ← 1

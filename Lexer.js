@@ -105,6 +105,11 @@ export class Lexer {
 			return;
 		}
 
+		if (char === '"') {
+			this.makeString();
+			return;
+		}
+
 		Lang.error(this.line, this.col - 1, `Unexpected character: ${char}`);
 	}
 
@@ -144,6 +149,23 @@ export class Lexer {
 		} else {
 			this.addToken(TokenType.ID);
 		}
+	}
+
+	makeString() {
+		while (this.peek() !== '"') {
+			if (this.peek() === "\n") {
+				this.line++;
+				this.col = 1;
+			} else if (this.peek() === "\t") {
+				this.col += 3;
+			}
+
+			this.next();
+		}
+
+		this.next();
+
+		this.addToken(TokenType.STRING);
 	}
 
 	/**

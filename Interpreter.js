@@ -179,8 +179,8 @@ export class Interpreter {
 		this.env.define(
 			"LENGTH",
 			new LangNative("LENGTH", 1, list => {
-				if (!(list instanceof LangList)) {
-					throw new Error("Argument must be a list.");
+				if (!(list instanceof LangList) && typeof list !== "string") {
+					throw new Error("Argument must be a list or string.");
 				}
 
 				return list.length;
@@ -241,6 +241,13 @@ export class Interpreter {
 		}
 
 		if (typeof left !== "number" || typeof right !== "number") {
+			if (
+				node.op.type === TokenType.PLUS &&
+				(typeof left === "string" || typeof right === "string")
+			) {
+				return `${left}${right}`;
+			}
+
 			throw new RuntimeError(node.op, "Operands must be numbers.");
 		}
 
@@ -331,7 +338,7 @@ export class Interpreter {
 		if (!(callee instanceof LangCallable)) {
 			throw new RuntimeError(
 				node.paren,
-				`'${callee}' is not a procedure.`
+				`'${callee}' must be a procedure.`
 			);
 		}
 
@@ -384,12 +391,25 @@ export class Interpreter {
 		const list = await this.visit(node.list);
 		const index = await this.visit(node.index);
 
-		if (!(list instanceof LangList)) {
-			throw new RuntimeError(node.brack, `'${list}' is not a list.`);
+		if (typeof index !== "number") {
+			throw new RuntimeError(node.brack, `'${index}' must be a number.`);
 		}
 
-		if (typeof index !== "number") {
-			throw new RuntimeError(node.brack, `'${index}' is not a number.`);
+		if (typeof list === "string") {
+			if (index < 1 || index > list.length) {
+				throw new RuntimeError(
+					node.brack,
+					`Index out of bounds: ${index}`
+				);
+			}
+			return list[index - 1];
+		}
+
+		if (!(list instanceof LangList)) {
+			throw new RuntimeError(
+				node.brack,
+				`'${list}' must be a list or string.`
+			);
 		}
 
 		if (list.outOfBounds(index)) {
@@ -409,12 +429,12 @@ export class Interpreter {
 		const list = await this.visit(node.list);
 		const index = await this.visit(node.index);
 
-		if (!(list instanceof LangList)) {
-			throw new RuntimeError(node.brack, `'${list}' is not a list.`);
+		if (typeof index !== "number") {
+			throw new RuntimeError(node.brack, `'${index}' must be a number.`);
 		}
 
-		if (typeof index !== "number") {
-			throw new RuntimeError(node.brack, `'${index}' is not a number.`);
+		if (!(list instanceof LangList)) {
+			throw new RuntimeError(node.brack, `'${list}' must be a list.`);
 		}
 
 		if (list.outOfBounds(index)) {
@@ -473,7 +493,7 @@ export class Interpreter {
 		const list = await this.visit(node.list);
 
 		if (!(list instanceof LangList)) {
-			throw new RuntimeError(node.inToken, `'${list}' is not a list.`);
+			throw new RuntimeError(node.inToken, `'${list}' must be a list.`);
 		}
 
 		for (const value of list.values) {
