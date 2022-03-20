@@ -1,4 +1,4 @@
-# College Board Pseudocode Interpreter
+## College Board Pseudocode Interpreter
 
 A playground for this interpreter is up on [my website](https://board.dan.onl).
 
@@ -9,10 +9,13 @@ Making this was heavily inspired by Robert Nystron's book [Crafting Interpreters
 ## TODO
 
 -   [ ] The `INPUT` native procedure isn't implemented yet, but it should be simple to make a nice interface for it since the interpreter already uses async/await.
--   [x] Errors are thrown in the console, but they should appear in the UI. ...Actually, error handling is just really bad in general, so that needs to be fixed.
--   [x] Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
 -   [ ] A robot simulation and procedure implementations need to be implemented.
 -   [ ] There might be bugs that need fixing; this wasn't tested extensively.
+
+### Completed
+
+-   [x] Errors are thrown in the console, but they should appear in the UI. ...Actually, error handling is just really bad in general, so that needs to be fixed.
+-   [x] Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
 
 ## Sample Code
 

@@ -18,22 +18,6 @@ body {
 	margin: 8em auto 2em auto;
 }
 
-.small {
-	display: block;
-	float: right;
-}
-.small img {
-	width: 0.8em;
-	display: inline-block;
-}
-.small img {
-	filter: invert();
-	transition: opacity 0.2s;
-}
-.small img:hover {
-	opacity: 0.8;
-}
-
 h2 {
 	margin: 0.5em 0 0.2em 0;
 }
@@ -41,7 +25,7 @@ h2 {
 textarea {
 	width: 100%;
 	resize: vertical;
-	padding: 0.5em;
+	padding: 1em;
 	background: #0b0f1a;
 	color: #fff;
 	border: none;
@@ -125,7 +109,93 @@ pre {
 	margin-bottom: 1em;
 	font-family: "Fira Code", monospace;
 	font-variant-ligatures: none;
-	font-size: 0.8rem;
 	tab-size: 4;
 	white-space: pre-wrap;
+}
+
+.about {
+	margin-top: 3em;
+	line-height: 1.5em;
+}
+.about h1 {
+	font-size: 2.5rem;
+	margin: 1em 0 0.7em 0;
+}
+.small {
+	display: block;
+	float: right;
+	text-decoration: none;
+	border-bottom: none !important;
+}
+.small img {
+	width: 0.8em;
+	display: inline-block;
+}
+.small img {
+	filter: invert();
+	transition: opacity 0.2s;
+}
+.small img:hover {
+	opacity: 0.8;
+}
+.about h2 {
+	font-size: 1.8rem;
+	margin: 1em 0 0.3em 0;
+}
+.about h3 {
+	font-size: 1.2rem;
+	margin: 0.5em 0 0.3em 0;
+}
+.about p,
+.about summary,
+.about ul,
+.about ol {
+	margin: 0.2em 0 0.8em 0;
+}
+.about summary {
+	cursor: pointer;
+}
+.about ul {
+	list-style: none;
+	padding: 0;
+}
+.about a {
+	color: #fff;
+	text-decoration: none;
+	border-bottom: 1px solid #fff;
+	transition: border-bottom 0.2s, opacity 0.2s;
+}
+.about a:hover {
+	border-bottom: 1px solid transparent;
+	opacity: 0.8;
+}
+.about table {
+	border-collapse: collapse;
+	width: 100%;
+	margin: 0.5em 0;
+}
+.about table th {
+	text-align: left;
+	padding: 0.2em 0.5em;
+	border-bottom: 1px solid #fff;
+}
+.about table td {
+	padding: 0.2em 0.5em;
+}
+.about table tr:nth-child(2n) {
+	background: #0002;
+}
+.about pre {
+	font-size: 1rem;
+	line-height: 1.2em;
+	padding: 1em;
+	background: #13192c;
+	border-radius: 0.5em;
+}
+.about code:not(pre code) {
+	font-size: 1rem;
+	background: #13192c;
+	display: inline-block;
+	padding: 0.1em 0.3em;
+	border-radius: 0.2em;
 }
