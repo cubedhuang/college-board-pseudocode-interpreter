@@ -280,6 +280,7 @@ export class Parser {
 
 		while (true) {
 			if (this.match(TokenType.LPAREN)) {
+				const paren = this.previous();
 				const args = [];
 
 				if (!this.check(TokenType.RPAREN)) {
@@ -290,7 +291,7 @@ export class Parser {
 
 				this.consume(TokenType.RPAREN, "Expected ')' after arguments.");
 
-				expr = new ExprCall(expr, this.previous(), args);
+				expr = new ExprCall(expr, paren, args);
 			} else if (this.match(TokenType.LBRACK)) {
 				const brack = this.previous();
 				const index = this.expr();
