@@ -1,3 +1,4 @@
+import fs from "fs/promises";
 import { marked } from "marked";
 import Head from "next/head";
 import Image from "next/image";
@@ -10,9 +11,7 @@ interface AboutProps {
 }
 
 export async function getStaticProps() {
-	const markdown = await fetch(
-		"https://raw.githubusercontent.com/cubedhuang/college-board-pseudocode-interpreter/master/README.md"
-	).then(r => r.text());
+	const markdown = await fs.readFile("./README.md", "utf8");
 	const html = marked(markdown);
 
 	return { props: { html } };
