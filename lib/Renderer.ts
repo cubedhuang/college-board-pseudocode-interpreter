@@ -31,8 +31,11 @@ export class Renderer {
 			throw new Error(`No visit${node.type} method.`);
 		}
 
-		// @ts-expect-error
-		return this[`visit${node.type}`].call(this, node);
+		return (
+			(node.type.includes("Stmt") ? this.indents : "") +
+			// @ts-expect-error
+			this[`visit${node.type}`].call(this, node)
+		);
 	}
 
 	visitExprLiteral(node: ExprLiteral): string {
