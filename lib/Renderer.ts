@@ -32,7 +32,7 @@ export class Renderer {
 		}
 
 		return (
-			(node.type.includes("Stmt") ? this.indents : "") +
+			(node.type.startsWith("Stmt") ? this.indents : "") +
 			// @ts-expect-error
 			this[`visit${node.type}`].call(this, node)
 		);
