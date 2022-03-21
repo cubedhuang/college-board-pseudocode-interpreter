@@ -1,6 +1,7 @@
 import { marked } from "marked";
 import Head from "next/head";
 import Image from "next/image";
+import { useEffect } from "react";
 
 import { Lang } from "../lib/Lang";
 
@@ -18,7 +19,7 @@ export async function getStaticProps() {
 }
 
 export default function Home({ html }: AboutProps) {
-	if (typeof window === "object") {
+	useEffect(() => {
 		// @ts-expect-error
 		window.lang = new Lang();
 
@@ -27,7 +28,7 @@ export default function Home({ html }: AboutProps) {
 		)) {
 			details.open = true;
 		}
-	}
+	}, []);
 
 	return (
 		<div className="container">
@@ -66,31 +67,31 @@ export default function Home({ html }: AboutProps) {
 
 			<h1>College Board Pseudocode Interpreter</h1>
 
-			<h2>
-				<label htmlFor="editor">Editor</label>
-			</h2>
-			<textarea
-				name="editor"
-				id="editor"
-				cols={30}
-				rows={15}
-				spellCheck="false"
-				data-gramm="false"
-				data-gramm_editor="false"
-				data-enable-grammarly="false"
-			></textarea>
+			<div className="editor">
+				<h2>
+					<label htmlFor="editor">Editor</label>
+				</h2>
 
-			<div className="spaced">
-				<div>
-					<h3 className="symbol-header">Special Symbols</h3>
-					<div className="symbols">
-						<button className="make-symbol">←</button>
-						<button className="make-symbol">≠</button>
-						<button className="make-symbol">≤</button>
-						<button className="make-symbol">≥</button>
-					</div>
+				<div className="symbols">
+					<button className="make-symbol">←</button>
+					<button className="make-symbol">≠</button>
+					<button className="make-symbol">≤</button>
+					<button className="make-symbol">≥</button>
 				</div>
 
+				<textarea
+					name="editor"
+					id="editor"
+					cols={30}
+					rows={15}
+					spellCheck="false"
+					data-gramm="false"
+					data-gramm_editor="false"
+					data-enable-grammarly="false"
+				></textarea>
+			</div>
+
+			<div className="right">
 				<button id="run">run</button>
 			</div>
 
@@ -111,7 +112,7 @@ export default function Home({ html }: AboutProps) {
 
 			<section className="about">
 				<h1>
-					About
+					<span>About</span>
 					<a
 						className="small"
 						href="https://github.com/cubedhuang/college-board-pseudocode-interpreter"

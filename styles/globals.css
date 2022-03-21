@@ -18,8 +18,13 @@ body {
 	margin: 8em auto 2em auto;
 }
 
-h2 {
+.editor {
+	margin-bottom: 0.5em;
+}
+
+.editor h2 {
 	margin: 0.5em 0 0.2em 0;
+	float: left;
 }
 
 textarea {
@@ -40,30 +45,21 @@ textarea:focus {
 	outline: none;
 }
 
-.spaced {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-}
-
-h3.symbol-header {
-	display: inline-block;
-	margin-right: 1em;
-}
-
 .symbols {
-	display: inline-flex;
+	display: flex;
+	float: right;
 	flex-wrap: wrap;
 	align-items: center;
-	margin: 0.5em 0;
 	gap: 0.5em;
+	position: sticky;
+	top: 0.5em;
 }
 
 .make-symbol {
 	display: inline-block;
 	width: 2em;
 	height: 2em;
-	border: none;
+	border: 2px solid #fff;
 	border-radius: 50%;
 	text-align: center;
 	line-height: 1.5em;
@@ -83,10 +79,14 @@ h3.symbol-header {
 	color: #0b0f1a;
 }
 
+.right {
+	float: right;
+}
+
 #run {
 	background: #08204b;
 	color: #fff;
-	border: 0.2em solid #fff;
+	border: 2px solid #fff;
 	border-radius: 0.2em;
 	padding: 0.2em 0.5em;
 	font: inherit;
@@ -120,11 +120,12 @@ pre {
 }
 .about h1 {
 	font-size: 2.5rem;
-	margin: 1em 0 0.7em 0;
+	margin: 1em 0 0.5em 0;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
 }
 .small {
-	display: block;
-	float: right;
 	text-decoration: none;
 	border-bottom: none !important;
 }
