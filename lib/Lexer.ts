@@ -146,7 +146,7 @@ export class Lexer {
 	}
 
 	makeString() {
-		while (this.peek() !== '"') {
+		while (this.peek() && this.peek() !== '"') {
 			if (this.peek() === "\n") {
 				this.line++;
 				this.col = 1;
@@ -155,6 +155,10 @@ export class Lexer {
 			}
 
 			this.next();
+		}
+
+		if (!this.peek()) {
+			this.lang.error(this.line, this.col - 1, "Unterminated string.");
 		}
 
 		this.next();

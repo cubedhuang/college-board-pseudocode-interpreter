@@ -194,15 +194,84 @@ export class Interpreter {
 				return left === right;
 		}
 
-		if (typeof left !== "number" || typeof right !== "number") {
-			if (
-				node.op.type === TokenType.PLUS &&
-				(typeof left === "string" || typeof right === "string")
-			) {
-				return `${left}${right}`;
+		if (
+			node.op.type === TokenType.PLUS &&
+			(typeof left === "string" || typeof right === "string")
+		) {
+			return `${left}${right}`;
+		}
+
+		if (left instanceof Callable || right instanceof Callable) {
+			throw new RuntimeError(
+				node.op,
+				`Cannot use operator '${node.op.lexeme}' on a procedure.`
+			);
+		}
+
+		if (typeof left === "boolean" || typeof right === "boolean") {
+			throw new RuntimeError(
+				node.op,
+				`Cannot use operator '${node.op.lexeme}' on a boolean.`
+			);
+		}
+
+		if (left === null || right === null) {
+			throw new RuntimeError(
+				node.op,
+				`Cannot use operator '${node.op.lexeme}' on null.`
+			);
+		}
+
+		if (!this.equalTypes(left, right)) {
+			throw new RuntimeError(
+				node.op,
+				`Incompatible operand types for ${typeof left} '${
+					node.op.lexeme
+				}' ${typeof right}.`
+			);
+		}
+
+		if (left instanceof List && right instanceof List) {
+			switch (node.op.type) {
+				case TokenType.GT:
+					return left.length > right.length;
+				case TokenType.GE:
+					return left.length >= right.length;
+				case TokenType.LT:
+					return left.length < right.length;
+				case TokenType.LE:
+					return left.length <= right.length;
 			}
 
-			throw new RuntimeError(node.op, "Operands must be numbers.");
+			throw new RuntimeError(
+				node.op,
+				`Cannot use operator '${node.op.lexeme}' on lists.`
+			);
+		}
+
+		if (left instanceof List || right instanceof List) {
+			throw new RuntimeError(
+				node.op,
+				"This code should be unreachable; if this is an error, that is bad."
+			);
+		}
+
+		switch (node.op.type) {
+			case TokenType.GT:
+				return left > right;
+			case TokenType.GE:
+				return left >= right;
+			case TokenType.LT:
+				return left < right;
+			case TokenType.LE:
+				return left <= right;
+		}
+
+		if (typeof left === "string" || typeof right === "string") {
+			throw new RuntimeError(
+				node.op,
+				`Cannot use operator '${node.op.lexeme}' on strings.`
+			);
 		}
 
 		switch (node.op.type) {
@@ -216,14 +285,6 @@ export class Interpreter {
 				return left / right;
 			case TokenType.MOD:
 				return left % right;
-			case TokenType.GT:
-				return left > right;
-			case TokenType.GE:
-				return left >= right;
-			case TokenType.LT:
-				return left < right;
-			case TokenType.LE:
-				return left <= right;
 			default:
 				throw new RuntimeError(
 					node.op,
@@ -457,5 +518,16 @@ export class Interpreter {
 		} finally {
 			this.env = previous;
 		}
+	}
+
+	equalTypes(a: InternalValue, b: InternalValue) {
+		return (
+			(a instanceof List && b instanceof List) ||
+			(a instanceof Callable && b instanceof Callable) ||
+			(a === null && b === null) ||
+			(typeof a !== "object" &&
+				typeof b !== "object" &&
+				typeof a === typeof b)
+		);
 	}
 }
