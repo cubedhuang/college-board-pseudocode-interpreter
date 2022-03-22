@@ -6,15 +6,14 @@ export type InternalValue =
 	| number
 	| boolean
 	| string
-	| LangNative
-	| LangCallable
-	| LangList;
+	| Callable
+	| List;
 
 export class Return {
 	constructor(public value: InternalValue) {}
 }
 
-export abstract class LangCallable {
+export abstract class Callable {
 	constructor(public name: string, public arity: number) {}
 
 	abstract call(
@@ -23,7 +22,7 @@ export abstract class LangCallable {
 	): Promise<InternalValue>;
 }
 
-export class LangNative extends LangCallable {
+export class Native extends Callable {
 	constructor(
 		name: string,
 		arity: number,
@@ -46,7 +45,7 @@ export class LangNative extends LangCallable {
 	}
 }
 
-export class LangProcedure extends LangCallable {
+export class LangProcedure extends Callable {
 	constructor(name: string, public stmt: StmtProcedure, public env: Env) {
 		super(name, stmt.params.length);
 	}
@@ -76,7 +75,7 @@ export class LangProcedure extends LangCallable {
 	}
 }
 
-export class LangList {
+export class List {
 	constructor(public values: InternalValue[]) {}
 
 	get(i: number) {
@@ -114,7 +113,7 @@ export class LangList {
 	}
 
 	copy() {
-		return new LangList([...this.values]);
+		return new List([...this.values]);
 	}
 
 	get length() {

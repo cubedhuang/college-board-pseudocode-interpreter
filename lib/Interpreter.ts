@@ -21,11 +21,11 @@ import type {
 import type { Lang } from "./Lang";
 import { Token, TokenType } from "./Token";
 import {
+	Callable,
 	InternalValue,
-	LangCallable,
-	LangList,
-	LangNative,
 	LangProcedure,
+	List,
+	Native,
 	Return
 } from "./types";
 
@@ -77,7 +77,7 @@ export class Interpreter {
 	constructor(public lang: Lang) {
 		this.env.define(
 			"DISPLAY",
-			new LangNative("DISPLAY", 1, value => {
+			new Native("DISPLAY", 1, value => {
 				this.output += `${value} `;
 				return value;
 			})
@@ -85,7 +85,7 @@ export class Interpreter {
 
 		this.env.define(
 			"RANDOM",
-			new LangNative("RANDOM", 2, (a, b) => {
+			new Native("RANDOM", 2, (a, b) => {
 				if (typeof a !== "number") {
 					throw new Error("First argument must be a number.");
 				}
@@ -99,8 +99,8 @@ export class Interpreter {
 
 		this.env.define(
 			"INSERT",
-			new LangNative("INSERT", 3, (list, index, value) => {
-				if (!(list instanceof LangList)) {
+			new Native("INSERT", 3, (list, index, value) => {
+				if (!(list instanceof List)) {
 					throw new Error("First argument must be a list.");
 				}
 				if (typeof index !== "number") {
@@ -115,8 +115,8 @@ export class Interpreter {
 
 		this.env.define(
 			"APPEND",
-			new LangNative("APPEND", 2, (list, value) => {
-				if (!(list instanceof LangList)) {
+			new Native("APPEND", 2, (list, value) => {
+				if (!(list instanceof List)) {
 					throw new Error("First argument must be a list.");
 				}
 
@@ -128,8 +128,8 @@ export class Interpreter {
 
 		this.env.define(
 			"REMOVE",
-			new LangNative("REMOVE", 2, (list, index) => {
-				if (!(list instanceof LangList)) {
+			new Native("REMOVE", 2, (list, index) => {
+				if (!(list instanceof List)) {
 					throw new Error("First argument must be a list.");
 				}
 				if (typeof index !== "number") {
@@ -144,8 +144,8 @@ export class Interpreter {
 
 		this.env.define(
 			"LENGTH",
-			new LangNative("LENGTH", 1, list => {
-				if (!(list instanceof LangList) && typeof list !== "string") {
+			new Native("LENGTH", 1, list => {
+				if (!(list instanceof List) && typeof list !== "string") {
 					throw new Error("Argument must be a list or string.");
 				}
 
@@ -270,7 +270,7 @@ export class Interpreter {
 
 	async visitExprAssign(node: ExprAssign) {
 		let value = await this.visit(node.value);
-		if (value instanceof LangList) {
+		if (value instanceof List) {
 			value = value.copy();
 		}
 		this.env.set(node.name.lexeme, value);
@@ -280,7 +280,7 @@ export class Interpreter {
 	async visitExprCall(node: ExprCall) {
 		const callee = await this.visit(node.callee);
 
-		if (!(callee instanceof LangCallable)) {
+		if (!(callee instanceof Callable)) {
 			throw new RuntimeError(
 				node.paren,
 				`'${callee}' must be a procedure.`
@@ -323,7 +323,7 @@ export class Interpreter {
 			values.push(await this.visit(expr));
 		}
 
-		return new LangList(values);
+		return new List(values);
 	}
 
 	async visitExprGetIndex(node: ExprGetIndex) {
@@ -344,7 +344,7 @@ export class Interpreter {
 			return list[index - 1];
 		}
 
-		if (!(list instanceof LangList)) {
+		if (!(list instanceof List)) {
 			throw new RuntimeError(
 				node.brack,
 				`'${list}' must be a list or string.`
@@ -369,7 +369,7 @@ export class Interpreter {
 			throw new RuntimeError(node.brack, `'${index}' must be a number.`);
 		}
 
-		if (!(list instanceof LangList)) {
+		if (!(list instanceof List)) {
 			throw new RuntimeError(node.brack, `'${list}' must be a list.`);
 		}
 
@@ -417,7 +417,7 @@ export class Interpreter {
 	async visitStmtForEach(node: StmtForEach) {
 		const list = await this.visit(node.list);
 
-		if (!(list instanceof LangList)) {
+		if (!(list instanceof List)) {
 			throw new RuntimeError(node.inToken, `'${list}' must be a list.`);
 		}
 

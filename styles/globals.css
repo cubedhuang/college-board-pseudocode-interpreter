@@ -100,9 +100,14 @@ textarea:focus {
 	color: #08204b;
 }
 
-h3:not(.symbol-header) {
+summary {
+	cursor: pointer;
+}
+
+summary h3 {
 	margin-top: 0;
 	margin-bottom: 0.2em;
+	display: inline-block;
 }
 
 pre {

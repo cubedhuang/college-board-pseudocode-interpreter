@@ -94,20 +94,26 @@ export default function Home({ html }: AboutProps) {
 				<button id="run">run</button>
 			</div>
 
-			<div>
-				<h3>Output</h3>
-				<pre id="output"></pre>
-			</div>
+			<details>
+				<summary>
+					<h3>Output</h3>
+				</summary>
+				<pre id="output">...</pre>
+			</details>
 
-			<div>
-				<h3>Syntax Tree</h3>
-				<pre id="ast"></pre>
-			</div>
+			<details>
+				<summary>
+					<h3>Syntax Tree</h3>
+				</summary>
+				<pre id="ast">...</pre>
+			</details>
 
-			<div>
-				<h3>Tokens</h3>
-				<pre id="tokens"></pre>
-			</div>
+			<details>
+				<summary>
+					<h3>Tokens</h3>
+				</summary>
+				<pre id="tokens">...</pre>
+			</details>
 
 			<section className="about">
 				<h1>

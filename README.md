@@ -10,6 +10,7 @@ Making this was heavily inspired by Robert Nystron's book [Crafting Interpreters
 
 -   [ ] The `INPUT` native procedure isn't implemented yet, but it should be simple to make a nice interface for it since the interpreter already uses async/await.
 -   [ ] A robot simulation and procedure implementations need to be implemented.
+-   [ ] If I feel like it, I might make a procedure without a return statement output a `void` value rather than `null`. `void` would be unassignable or unusable to prevent the use of that type.
 -   [ ] There might be bugs that need fixing; this wasn't tested extensively.
 
 ### Completed
@@ -121,7 +122,8 @@ There are a few additions to the original reference sheet in this implementation
 6. College Board doesn't define a behavior for displaying lists or procedures from the `DISPLAY` procedure, so there were a few arbitrary decisions to support this.
 7. There is very little written on errors; the only error specified is index out of bounds for lists. Therefore, this interpreter is relatively lenient with truthiness, and all arithmetic and comparison operations only allow number operands.
 8. The three list procedures, `INSERT`, `APPEND`, and `REMOVE`, don't have a return value specified, so this interpreter returns the list after modification. The `DISPLAY` procedure returns the displayed value.
-9. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
+9. It's never specified what a procedure without a return statement should output, so this implementation returns null. This behavior might change in the future.
+10. Newlines don't have any meaning in the grammar; the end of an expression is the end of the statement. That means that code such as:
 
 ```
 a ← 1 b ← 1
