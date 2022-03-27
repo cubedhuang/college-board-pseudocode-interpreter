@@ -70,7 +70,6 @@ export class Env {
 }
 
 export class Interpreter {
-	output = "";
 	env = new Env();
 	inProcedure = false;
 
@@ -78,7 +77,7 @@ export class Interpreter {
 		this.env.define(
 			"DISPLAY",
 			new Native("DISPLAY", 1, value => {
-				this.output += `${value} `;
+				this.lang.addOutput(`${value} `);
 				return value;
 			})
 		);
@@ -152,11 +151,29 @@ export class Interpreter {
 				return list.length;
 			})
 		);
+
+		this.env.define(
+			"INPUT",
+			new Native("INPUT", 0, async () => {
+				const input = await this.lang.awaitInput();
+
+				console.log(input);
+
+				switch (input.type) {
+					case "string":
+						return input.value;
+					case "number":
+						return parseInt(input.value as string);
+					case "boolean":
+						return input.value;
+					case "exit":
+						throw new Error("User-initiated exit.");
+				}
+			})
+		);
 	}
 
 	async interpret(statements: ASTNode[]) {
-		this.output = "";
-
 		try {
 			for (const statement of statements) {
 				await this.visit(statement);
@@ -164,6 +181,8 @@ export class Interpreter {
 		} catch (err) {
 			if (err instanceof RuntimeError) {
 				this.lang.error(err.token.line, err.token.col, err.message);
+			} else if (err instanceof Error) {
+				this.lang.addOutput(`Unexpected error: ${err.message}`);
 			} else {
 				throw err;
 			}

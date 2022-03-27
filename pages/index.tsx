@@ -99,6 +99,21 @@ export default function Home({ html }: AboutProps) {
 					<h3>Output</h3>
 				</summary>
 				<pre id="output">...</pre>
+
+				<div className="inputs hidden" id="inputs">
+					<input type="text" name="input" id="input" />
+
+					<select name="input-type" id="input-type">
+						<option value="string" selected={true}>
+							string
+						</option>
+						<option value="number">number</option>
+						<option value="boolean">boolean</option>
+					</select>
+
+					<button id="enter">enter</button>
+					<button id="exit">exit program</button>
+				</div>
 			</details>
 
 			<details>

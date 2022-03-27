@@ -8,15 +8,15 @@ Making this was heavily inspired by Robert Nystron's book [Crafting Interpreters
 
 ## TODO
 
--   [ ] The `INPUT` native procedure isn't implemented yet, but it should be simple to make a nice interface for it since the interpreter already uses async/await.
--   [ ] A robot simulation and procedure implementations need to be implemented.
--   [ ] If I feel like it, I might make a procedure without a return statement output a `void` value rather than `null`. `void` would be unassignable or unusable to prevent the use of that type.
--   [ ] There might be bugs that need fixing; this wasn't tested extensively.
+1.  A robot simulation and procedure implementations need to be implemented.
+2.  If I feel like it, I might make a procedure without a return statement output a `void` value rather than `null`. `void` would be unassignable or unusable to prevent the use of that type.
+3.  There might be bugs that need fixing; this wasn't tested extensively.
 
 ### Completed
 
--   [x] Errors are thrown in the console, but they should appear in the UI. ...Actually, error handling is just really bad in general, so that needs to be fixed.
--   [x] Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
+1.  The `INPUT` native procedure isn't implemented yet, but it should be simple to make a nice interface for it since the interpreter already uses async/await.
+2.  Errors are thrown in the console, but they should appear in the UI. ...Actually, error handling is just really bad in general, so that needs to be fixed.
+3.  Binary operations don't check for operand types; this is bad because some undefined operations mean that programs can escape into unallowed types like strings because of JavaScript's type casting.
 
 ## Sample Code
 

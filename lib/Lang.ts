@@ -6,24 +6,34 @@ import { Renderer } from "./Renderer";
 export class Lang {
 	hasError = false;
 	renderer = new Renderer();
+	interpreter!: Interpreter;
 	src = "";
+	resolveInput!: (
+		value: string | boolean,
+		type: "string" | "number" | "boolean" | "exit"
+	) => void;
 
 	elements = {
 		run: document.getElementById("run") as HTMLButtonElement,
-		input: document.getElementById("editor") as HTMLTextAreaElement,
+		src: document.getElementById("editor") as HTMLTextAreaElement,
 		symbols: Array.from(
 			document.getElementsByClassName("make-symbol")
 		) as HTMLButtonElement[],
 		output: document.getElementById("output") as HTMLPreElement,
 		ast: document.getElementById("ast") as HTMLPreElement,
-		tokens: document.getElementById("tokens") as HTMLPreElement
+		tokens: document.getElementById("tokens") as HTMLPreElement,
+		inputs: document.getElementById("inputs") as HTMLDivElement,
+		input: document.getElementById("input") as HTMLInputElement,
+		inputType: document.getElementById("input-type") as HTMLSelectElement,
+		enter: document.getElementById("enter") as HTMLButtonElement,
+		exit: document.getElementById("exit") as HTMLButtonElement
 	};
 
 	constructor() {
 		for (const e of this.elements.symbols) {
 			e.addEventListener("click", () => {
 				const text = e.textContent ?? "";
-				const input = this.elements.input;
+				const input = this.elements.src;
 
 				const start = input.selectionStart;
 				const end = input.selectionEnd;
@@ -37,11 +47,11 @@ export class Lang {
 			});
 		}
 
-		this.elements.input.addEventListener("keydown", e => {
+		this.elements.src.addEventListener("keydown", e => {
 			if (e.key === "Tab") {
 				e.preventDefault();
-				const text = this.elements.input.value;
-				const input = this.elements.input;
+				const text = this.elements.src.value;
+				const input = this.elements.src;
 
 				const start = input.selectionStart;
 				const end = input.selectionEnd;
@@ -54,16 +64,70 @@ export class Lang {
 			}
 		});
 
-		this.elements.input.addEventListener("change", () => {
-			localStorage.setItem("src", this.elements.input.value);
+		this.elements.src.addEventListener("change", () => {
+			localStorage.setItem("src", this.elements.src.value);
 		});
 
 		this.elements.run.addEventListener("click", async () => {
-			await this.run(this.elements.input.value);
+			await this.run(this.elements.src.value);
 			this.hasError = false;
 		});
 
-		this.elements.input.value = localStorage.getItem("src") || "";
+		this.elements.src.value = localStorage.getItem("src") || "";
+
+		this.elements.input.addEventListener("keydown", e => {
+			if (e.key === "Enter") {
+				e.preventDefault();
+				this.elements.enter.click();
+			}
+		});
+
+		this.elements.enter.addEventListener("click", async () => {
+			const type = this.elements.inputType.value;
+			const input =
+				type === "boolean"
+					? this.elements.input.checked
+					: this.elements.input.value;
+
+			this.resolveInput(input, type as "string" | "number" | "boolean");
+
+			this.elements.input.value = "";
+		});
+
+		this.elements.inputType.addEventListener("change", () => {
+			this.elements.input.value = "";
+
+			if (this.elements.inputType.value === "string") {
+				this.elements.input.type = "text";
+			} else if (this.elements.inputType.value === "number") {
+				this.elements.input.type = "number";
+			} else if (this.elements.inputType.value === "boolean") {
+				this.elements.input.type = "checkbox";
+			}
+		});
+
+		this.elements.exit.addEventListener("click", () => {
+			this.resolveInput("", "exit");
+
+			this.elements.input.value = "";
+		});
+	}
+
+	awaitInput() {
+		this.elements.inputs.classList.remove("hidden");
+		this.elements.input.focus();
+
+		return new Promise<{
+			value: string | boolean;
+			type: "string" | "number" | "boolean" | "exit";
+		}>(resolve => {
+			this.resolveInput = (value, type) => {
+				resolve({ value, type });
+
+				this.elements.inputs.classList.add("hidden");
+			};
+			console.log(this.resolveInput);
+		});
 	}
 
 	async run(src: string) {
@@ -83,12 +147,11 @@ export class Lang {
 		if (!statements || this.hasError) return;
 		this.elements.ast.textContent = this.renderer.render(statements);
 
-		const interpreter = new Interpreter(this);
-		await interpreter.interpret(statements);
+		this.interpreter = new Interpreter(this);
+		await this.interpreter.interpret(statements);
 
 		if (this.hasError) return;
 
-		this.setOutput(interpreter.output);
 		if (this.output()) this.addOutput("\n");
 		this.addOutput("-------\nSUCCESS");
 	}
