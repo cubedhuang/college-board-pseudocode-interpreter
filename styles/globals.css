@@ -126,7 +126,7 @@ pre#output {
 	margin-bottom: 0;
 }
 .inputs {
-	margin-bottom: 1em;
+	margin: 0.2em 0;
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
@@ -144,6 +144,7 @@ pre#output {
 	font-family: "Fira Code", monospace;
 	font-variant-ligatures: none;
 	tab-size: 4;
+	font-size: 1rem;
 	transition: 0.2s border, 0.2s background, 0.2s color;
 }
 .inputs input[type="text"],
@@ -169,11 +170,11 @@ pre#output {
 	content: "";
 	position: absolute;
 	display: block;
-	top: 2px;
-	right: 2px;
-	bottom: 2px;
-	left: 2px;
-	border-radius: 0.2em;
+	top: 4px;
+	right: 4px;
+	bottom: 4px;
+	left: 4px;
+	border-radius: 4px;
 	background: transparent;
 	transition: 0.2s background;
 }
