@@ -129,6 +129,7 @@ pre#output {
 	margin-bottom: 1em;
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	gap: 0.5em;
 }
 .hidden {
@@ -154,10 +155,29 @@ pre#output {
 	margin: 0;
 	cursor: pointer;
 	background: #0b0f1a;
-	transition: 0.2s background;
-	width: 2em;
+	transition: 0.2s background, 0.2s border;
+	width: 1.8em;
+	height: 1.8em;
+	border: 2px solid #fff8;
+	position: relative;
 }
-.inputs input[type="checkbox"]:checked {
+.inputs input[type="checkbox"]:hover,
+.inputs input[type="checkbox"]:focus {
+	border: 2px solid #fff;
+}
+.inputs input[type="checkbox"]::after {
+	content: "";
+	position: absolute;
+	display: block;
+	top: 2px;
+	right: 2px;
+	bottom: 2px;
+	left: 2px;
+	border-radius: 0.2em;
+	background: transparent;
+	transition: 0.2s background;
+}
+.inputs input[type="checkbox"]:checked::after {
 	background: #fff;
 }
 .inputs select,
