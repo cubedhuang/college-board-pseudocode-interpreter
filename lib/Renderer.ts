@@ -8,8 +8,6 @@ export class Renderer {
 	render(
 		node: Token | InternalValue | ASTNode | ASTNode[]
 	): Text | HTMLDetailsElement {
-		console.log(node);
-
 		if (Array.isArray(node)) {
 			const details = document.createElement("details");
 			const summary = document.createElement("summary");
@@ -39,18 +37,6 @@ export class Renderer {
 			details.appendChild(table);
 
 			return details;
-
-			// const ul = document.createElement("ol");
-			// for (const child of node) {
-			// 	const li = document.createElement("li");
-			// 	li.appendChild(this.render(child));
-			// 	ul.appendChild(li);
-			// }
-			// details.appendChild(ul);
-
-			this.indent--;
-
-			return details;
 		}
 
 		if (node instanceof Token) {
@@ -63,14 +49,12 @@ export class Renderer {
 
 		if (node instanceof ExprLiteral) {
 			return document.createTextNode(
-				`ExprLiteral ${this.stringify(node.value)}`
+				`Literal ${this.stringify(node.value)}`
 			);
 		}
 
 		if (node instanceof ExprVariable) {
-			return document.createTextNode(
-				`ExprVariable '${node.name.lexeme}'`
-			);
+			return document.createTextNode(`Variable '${node.name.lexeme}'`);
 		}
 
 		const details = document.createElement("details");
@@ -102,23 +86,7 @@ export class Renderer {
 
 		this.indent--;
 
-		console.log(details);
-
 		return details;
-
-		// render += Object.keys(node).reduce((acc, key) => {
-		// 	if (key === "type" || key === "token" || key === "paren") {
-		// 		return acc;
-		// 	}
-
-		// 	return `${acc}\n${this.indents}${key}: ${this.render(
-		// 		node[key as keyof ASTNode]
-		// 	)}`;
-		// }, "");
-
-		// this.indent--;
-
-		// return `${render}\n${this.indents}}`;
 	}
 
 	stringify(value: InternalValue) {

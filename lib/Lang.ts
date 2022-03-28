@@ -154,7 +154,6 @@ export class Lang {
 		if ((this.elements.ast.parentElement as HTMLDetailsElement).open) {
 			this.elements.ast.textContent = "";
 			const render = this.renderer.render(statements);
-			console.log(render);
 			this.elements.ast.appendChild(render);
 		} else {
 			this.elements.ast.textContent = "...";
