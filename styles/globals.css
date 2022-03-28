@@ -83,6 +83,12 @@ textarea:focus {
 	float: right;
 }
 
+.right span {
+	opacity: 0.5;
+	display: inline-block;
+	margin-right: 0.5em;
+}
+
 #run {
 	background: #08204b;
 	color: #fff;
@@ -193,6 +199,31 @@ pre#output {
 .inputs button:focus {
 	background: #fff;
 	color: #0b0f1a;
+}
+
+#ast {
+	font-family: "Fira Code", monospace;
+	font-variant-ligatures: none;
+	font-size: 0.8rem;
+}
+#ast details {
+	margin-bottom: 0;
+}
+#ast table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+#ast table * {
+	vertical-align: top;
+}
+#ast table th {
+	font-weight: normal;
+	padding: 0.2em 0.5em;
+	text-align: right;
+	border-right: 1px solid #fff8;
+}
+#ast table td {
+	padding: 0.2em 0.5em;
 }
 
 .about {

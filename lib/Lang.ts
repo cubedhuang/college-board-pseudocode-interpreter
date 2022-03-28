@@ -20,7 +20,7 @@ export class Lang {
 			document.getElementsByClassName("make-symbol")
 		) as HTMLButtonElement[],
 		output: document.getElementById("output") as HTMLPreElement,
-		ast: document.getElementById("ast") as HTMLPreElement,
+		ast: document.getElementById("ast") as HTMLDivElement,
 		tokens: document.getElementById("tokens") as HTMLPreElement,
 		inputs: document.getElementById("inputs") as HTMLDivElement,
 		input: document.getElementById("input") as HTMLInputElement,
@@ -61,6 +61,9 @@ export class Lang {
 
 				input.selectionStart = start + 2;
 				input.selectionEnd = start + 2;
+			} else if (e.key === "Enter" && e.ctrlKey) {
+				e.preventDefault();
+				this.elements.run.click();
 			}
 		});
 
@@ -126,7 +129,6 @@ export class Lang {
 
 				this.elements.inputs.classList.add("hidden");
 			};
-			console.log(this.resolveInput);
 		});
 	}
 
@@ -138,14 +140,27 @@ export class Lang {
 		const lexer = new Lexer(this, src);
 		const tokens = lexer.makeTokens();
 		if (!tokens || this.hasError) return;
-		this.elements.tokens.textContent = tokens
-			.map(t => t.toString())
-			.join("\n");
+		if ((this.elements.tokens.parentElement as HTMLDetailsElement).open) {
+			this.elements.tokens.textContent = tokens
+				.map(t => t.toString())
+				.join("\n");
+		} else {
+			this.elements.tokens.textContent = "...";
+		}
 
 		const parser = new Parser(this, tokens);
 		const statements = parser.parse();
 		if (!statements || this.hasError) return;
-		this.elements.ast.textContent = this.renderer.render(statements);
+		if ((this.elements.ast.parentElement as HTMLDetailsElement).open) {
+			this.elements.ast.textContent = "";
+			const render = this.renderer.render(statements);
+			console.log(render);
+			this.elements.ast.appendChild(render);
+		} else {
+			this.elements.ast.textContent = "...";
+		}
+
+		(this.elements.output.parentElement as HTMLDetailsElement).open = true;
 
 		this.interpreter = new Interpreter(this);
 		await this.interpreter.interpret(statements);

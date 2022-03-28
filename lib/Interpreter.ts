@@ -157,8 +157,6 @@ export class Interpreter {
 			new Native("INPUT", 0, async () => {
 				const input = await this.lang.awaitInput();
 
-				console.log(input);
-
 				switch (input.type) {
 					case "string":
 						return input.value;

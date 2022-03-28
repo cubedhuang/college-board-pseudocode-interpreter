@@ -1,162 +1,131 @@
-import type {
-	ASTNode,
-	ExprAssign,
-	ExprBinary,
-	ExprCall,
-	ExprGetIndex,
-	ExprList,
-	ExprLiteral,
-	ExprLogical,
-	ExprSetIndex,
-	ExprUnary,
-	ExprVariable,
-	StmtExpr,
-	StmtForEach,
-	StmtIf,
-	StmtProcedure,
-	StmtRepeatTimes,
-	StmtRepeatUntil,
-	StmtReturn
-} from "./ast.js";
+import { ASTNode, ExprLiteral, ExprVariable } from "./ast";
+import { Token } from "./Token";
+import type { InternalValue } from "./types";
 
 export class Renderer {
 	indent = 0;
 
-	render(node: ASTNode | ASTNode[], join = "\n"): string {
+	render(
+		node: Token | InternalValue | ASTNode | ASTNode[]
+	): Text | HTMLDetailsElement {
+		console.log(node);
+
 		if (Array.isArray(node)) {
-			return node.map(n => this.render(n)).join(join);
-		}
+			const details = document.createElement("details");
+			const summary = document.createElement("summary");
+			summary.textContent = `[${node.length}]`;
+			details.appendChild(summary);
 
-		if (!(`visit${node.type}` in this)) {
-			throw new Error(`No visit${node.type} method.`);
-		}
+			this.indent++;
 
-		return (
-			(node.type.startsWith("Stmt") ? this.indents : "") +
-			// @ts-expect-error
-			this[`visit${node.type}`].call(this, node)
-		);
-	}
+			const table = document.createElement("table");
 
-	visitExprLiteral(node: ExprLiteral): string {
-		if (typeof node.value === "string") {
-			return `"${node.value}"`;
-		}
-		return `${node.value}`;
-	}
+			node.forEach((element, index) => {
+				const tr = document.createElement("tr");
 
-	visitExprBinary(node: ExprBinary): string {
-		return `(${this.render(node.left)} ${node.op.lexeme} ${this.render(
-			node.right
-		)})`;
-	}
+				const th = document.createElement("th");
+				th.textContent = `${index}`;
+				tr.appendChild(th);
 
-	visitExprLogical(node: ExprLogical): string {
-		return `(${this.render(node.left)} ${node.op.lexeme} ${this.render(
-			node.right
-		)})`;
-	}
+				const td = document.createElement("td");
+				td.appendChild(this.render(element));
+				tr.appendChild(td);
 
-	visitExprUnary(node: ExprUnary): string {
-		return `(${node.op.lexeme} ${this.render(node.right)})`;
-	}
+				table.appendChild(tr);
+			});
 
-	visitExprVariable(node: ExprVariable): string {
-		return `$${node.name.lexeme}`;
-	}
-
-	visitExprAssign(node: ExprAssign): string {
-		return `($${node.name.lexeme} ← ${this.render(node.value)})`;
-	}
-
-	visitExprCall(node: ExprCall): string {
-		return `(${this.render(node.callee)} (${this.render(
-			node.args,
-			", "
-		)}))`;
-	}
-
-	visitExprList(node: ExprList): string {
-		return `[${this.render(node.elements, ", ")}]`;
-	}
-
-	visitExprGetIndex(node: ExprGetIndex): string {
-		return `(${this.render(node.list)}[${this.render(node.index)}])`;
-	}
-
-	visitExprSetIndex(node: ExprSetIndex): string {
-		return `(${this.render(node.list)}[${this.render(
-			node.index
-		)}] ← ${this.render(node.value)})`;
-	}
-
-	visitStmtExpr(node: StmtExpr): string {
-		return `EXPR ${this.render(node.expr)}`;
-	}
-
-	visitStmtProcedure(node: StmtProcedure): string {
-		const start = `PROCEDURE $${node.name.lexeme} (${node.params
-			.map(param => `$${param.lexeme}`)
-			.join(", ")}) {\n`;
-
-		this.indent++;
-		const body = this.render(node.body);
-		this.indent--;
-
-		return `${start}${body}\n${this.indents}}`;
-	}
-
-	visitStmtIf(node: StmtIf): string {
-		const start = `IF ${this.render(node.condition)} {\n`;
-
-		this.indent++;
-		const thenBody = this.render(node.thenBody);
-
-		if (!node.elseBody) {
 			this.indent--;
-			return `${start}${thenBody}\n${this.indents}}`;
+
+			details.appendChild(table);
+
+			return details;
+
+			// const ul = document.createElement("ol");
+			// for (const child of node) {
+			// 	const li = document.createElement("li");
+			// 	li.appendChild(this.render(child));
+			// 	ul.appendChild(li);
+			// }
+			// details.appendChild(ul);
+
+			this.indent--;
+
+			return details;
 		}
 
-		const elseBody = node.elseBody ? this.render(node.elseBody) : "";
-		this.indent--;
+		if (node instanceof Token) {
+			return document.createTextNode(`'${node.lexeme}'`);
+		}
 
-		return `${start}${thenBody}\n${this.indents}} ELSE {\n${elseBody}\n${this.indents}}`;
-	}
+		if (!(node instanceof ASTNode)) {
+			return document.createTextNode(this.stringify(node));
+		}
 
-	visitStmtRepeatTimes(node: StmtRepeatTimes): string {
-		const start = `REPEAT ${this.render(node.times)} TIMES {\n`;
+		if (node instanceof ExprLiteral) {
+			return document.createTextNode(
+				`ExprLiteral ${this.stringify(node.value)}`
+			);
+		}
 
-		this.indent++;
-		const body = this.render(node.body);
-		this.indent--;
+		if (node instanceof ExprVariable) {
+			return document.createTextNode(
+				`ExprVariable '${node.name.lexeme}'`
+			);
+		}
 
-		return `${start}${body}\n${this.indents}}`;
-	}
-
-	visitStmtRepeatUntil(node: StmtRepeatUntil): string {
-		const start = `REPEAT UNTIL ${this.render(node.condition)} {\n`;
-
-		this.indent++;
-		const body = this.render(node.body);
-		this.indent--;
-
-		return `${start}${body}\n${this.indents}}`;
-	}
-
-	visitStmtForEach(node: StmtForEach): string {
-		const start = `FOR EACH $${node.name.lexeme} in ${this.render(
-			node.list
-		)} {\n`;
+		const details = document.createElement("details");
+		const summary = document.createElement("summary");
+		summary.textContent = `${node.type}`;
+		details.appendChild(summary);
 
 		this.indent++;
-		const body = this.render(node.body);
+
+		const table = document.createElement("table");
+		for (const [key, value] of Object.entries(node)) {
+			if (key === "type" || key === "token" || key === "paren") {
+				continue;
+			}
+
+			const tr = document.createElement("tr");
+			const th = document.createElement("th");
+			th.textContent = key;
+			tr.appendChild(th);
+
+			const td = document.createElement("td");
+			td.appendChild(this.render(value));
+			tr.appendChild(td);
+
+			table.appendChild(tr);
+		}
+
+		details.appendChild(table);
+
 		this.indent--;
 
-		return `${start}${body}\n${this.indents}}`;
+		console.log(details);
+
+		return details;
+
+		// render += Object.keys(node).reduce((acc, key) => {
+		// 	if (key === "type" || key === "token" || key === "paren") {
+		// 		return acc;
+		// 	}
+
+		// 	return `${acc}\n${this.indents}${key}: ${this.render(
+		// 		node[key as keyof ASTNode]
+		// 	)}`;
+		// }, "");
+
+		// this.indent--;
+
+		// return `${render}\n${this.indents}}`;
 	}
 
-	visitStmtReturn(node: StmtReturn): string {
-		return `RETURN ${this.render(node.value)}`;
+	stringify(value: InternalValue) {
+		if (typeof value === "string") {
+			return `"${value}"`;
+		}
+		return `${value}`;
 	}
 
 	get indents() {

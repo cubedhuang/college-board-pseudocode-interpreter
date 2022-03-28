@@ -91,6 +91,7 @@ export default function Home({ html }: AboutProps) {
 			</div>
 
 			<div className="right">
+				<span>ctrl+enter</span>
 				<button id="run">run</button>
 			</div>
 
@@ -103,10 +104,12 @@ export default function Home({ html }: AboutProps) {
 				<div className="inputs hidden" id="inputs">
 					<input type="text" name="input" id="input" />
 
-					<select name="input-type" id="input-type">
-						<option value="string" selected={true}>
-							string
-						</option>
+					<select
+						name="input-type"
+						id="input-type"
+						defaultValue="string"
+					>
+						<option value="string">string</option>
 						<option value="number">number</option>
 						<option value="boolean">boolean</option>
 					</select>
@@ -120,7 +123,7 @@ export default function Home({ html }: AboutProps) {
 				<summary>
 					<h3>Syntax Tree</h3>
 				</summary>
-				<pre id="ast">...</pre>
+				<div id="ast">...</div>
 			</details>
 
 			<details>
