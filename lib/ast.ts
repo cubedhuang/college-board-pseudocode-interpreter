@@ -78,12 +78,6 @@ export class ExprSetIndex extends ASTNode {
 	}
 }
 
-export class StmtExpr extends ASTNode {
-	constructor(public expr: ASTNode) {
-		super("StmtExpr");
-	}
-}
-
 export class StmtProcedure extends ASTNode {
 	constructor(
 		public name: Token,
@@ -123,7 +117,7 @@ export class StmtRepeatUntil extends ASTNode {
 export class StmtForEach extends ASTNode {
 	constructor(
 		public name: Token,
-		public inToken: Token,
+		public token: Token,
 		public list: ASTNode,
 		public body: ASTNode[]
 	) {

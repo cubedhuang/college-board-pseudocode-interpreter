@@ -10,7 +10,6 @@ import type {
 	ExprSetIndex,
 	ExprUnary,
 	ExprVariable,
-	StmtExpr,
 	StmtForEach,
 	StmtIf,
 	StmtProcedure,
@@ -463,10 +462,6 @@ export class Interpreter {
 		return value;
 	}
 
-	async visitStmtExpr(node: StmtExpr) {
-		await this.visit(node.expr);
-	}
-
 	async visitStmtProcedure(node: StmtProcedure) {
 		const procedure = new LangProcedure(node.name.lexeme, node, this.env);
 		this.env.define(node.name.lexeme, procedure);
@@ -496,7 +491,7 @@ export class Interpreter {
 		const list = await this.visit(node.list);
 
 		if (!(list instanceof List)) {
-			throw new RuntimeError(node.inToken, `'${list}' must be a list.`);
+			throw new RuntimeError(node.token, `'${list}' must be a list.`);
 		}
 
 		for (const value of list.values) {

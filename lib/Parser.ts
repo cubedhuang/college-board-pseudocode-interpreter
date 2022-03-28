@@ -10,7 +10,6 @@ import {
 	ExprSetIndex,
 	ExprUnary,
 	ExprVariable,
-	StmtExpr,
 	StmtForEach,
 	StmtIf,
 	StmtProcedure,
@@ -88,7 +87,7 @@ export class Parser {
 		if (this.match(TokenType.FOR)) return this.forEachStmt();
 		if (this.match(TokenType.RETURN)) return this.returnStmt();
 
-		return new StmtExpr(this.expr());
+		return this.expr();
 	}
 
 	procedureStmt(): StmtProcedure {
