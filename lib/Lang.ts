@@ -21,6 +21,8 @@ export class Lang {
 		) as HTMLButtonElement[],
 		output: document.getElementById("output") as HTMLPreElement,
 		ast: document.getElementById("ast") as HTMLDivElement,
+		expand: document.getElementById("expand") as HTMLButtonElement,
+		collapse: document.getElementById("collapse") as HTMLButtonElement,
 		tokens: document.getElementById("tokens") as HTMLPreElement,
 		inputs: document.getElementById("inputs") as HTMLDivElement,
 		input: document.getElementById("input") as HTMLInputElement,
@@ -113,6 +115,22 @@ export class Lang {
 			this.resolveInput("", "exit");
 
 			this.elements.input.value = "";
+		});
+
+		this.elements.expand.addEventListener("click", () => {
+			for (const details of Array.from(
+				this.elements.ast.getElementsByTagName("details")
+			)) {
+				details.open = true;
+			}
+		});
+
+		this.elements.collapse.addEventListener("click", () => {
+			for (const details of Array.from(
+				this.elements.ast.getElementsByTagName("details")
+			)) {
+				details.open = false;
+			}
 		});
 	}
 

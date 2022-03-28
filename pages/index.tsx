@@ -123,6 +123,8 @@ export default function Home({ html }: AboutProps) {
 				<summary>
 					<h3>Syntax Tree</h3>
 				</summary>
+				<button id="expand">expand all</button>
+				<button id="collapse">collapse all</button>
 				<div id="ast">...</div>
 			</details>
 

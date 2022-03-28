@@ -89,7 +89,9 @@ textarea:focus {
 	margin-right: 0.5em;
 }
 
-#run {
+#run,
+#expand,
+#collapse {
 	background: #08204b;
 	color: #fff;
 	border: 2px solid #fff;
@@ -101,9 +103,15 @@ textarea:focus {
 	transition: background 0.2s, color 0.2s;
 }
 
-#run:hover {
+:is(#run, #expand, #collapse):hover {
 	background: #fff;
 	color: #08204b;
+}
+
+#expand,
+#collapse {
+	font-size: 0.8rem;
+	margin: 0.2em 0.5em 0.5em 0;
 }
 
 details {
@@ -224,6 +232,10 @@ pre#output {
 }
 #ast table td {
 	padding: 0.2em 0.5em;
+}
+
+#tokens {
+	font-size: 0.8rem;
 }
 
 .about {
