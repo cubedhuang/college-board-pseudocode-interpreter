@@ -3,8 +3,6 @@ import { Token } from "./Token";
 import type { InternalValue } from "./types";
 
 export class Renderer {
-	indent = 0;
-
 	render(
 		node: Token | InternalValue | ASTNode | ASTNode[]
 	): Text | HTMLDetailsElement {
@@ -13,8 +11,6 @@ export class Renderer {
 			const summary = document.createElement("summary");
 			summary.textContent = `[${node.length}]`;
 			details.appendChild(summary);
-
-			this.indent++;
 
 			const table = document.createElement("table");
 
@@ -31,8 +27,6 @@ export class Renderer {
 
 				table.appendChild(tr);
 			});
-
-			this.indent--;
 
 			details.appendChild(table);
 
@@ -62,8 +56,6 @@ export class Renderer {
 		summary.textContent = `${node.type}`;
 		details.appendChild(summary);
 
-		this.indent++;
-
 		const table = document.createElement("table");
 		for (const [key, value] of Object.entries(node)) {
 			if (key === "type" || key === "token" || key === "paren") {
@@ -84,8 +76,6 @@ export class Renderer {
 
 		details.appendChild(table);
 
-		this.indent--;
-
 		return details;
 	}
 
@@ -94,9 +84,5 @@ export class Renderer {
 			return `"${value}"`;
 		}
 		return `${value}`;
-	}
-
-	get indents() {
-		return "  ".repeat(this.indent);
 	}
 }
