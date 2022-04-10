@@ -220,6 +220,7 @@ pre#output {
 #ast table {
 	border-collapse: collapse;
 	border-spacing: 0;
+	width: 100%;
 }
 #ast table * {
 	vertical-align: top;
@@ -232,6 +233,7 @@ pre#output {
 }
 #ast table td {
 	padding: 0.2em 0.5em;
+	width: 100%;
 }
 
 #tokens {
@@ -273,13 +275,10 @@ pre#output {
 	margin: 0.5em 0 0.3em 0;
 }
 .about p,
-.about summary,
+.about details,
 .about ul,
 .about ol {
 	margin: 0.2em 0 0.8em 0;
-}
-.about summary {
-	cursor: pointer;
 }
 .about ul {
 	list-style: none;

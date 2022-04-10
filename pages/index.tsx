@@ -125,7 +125,7 @@ export default function Home({ html }: AboutProps) {
 				</summary>
 				<button id="expand">expand all</button>
 				<button id="collapse">collapse all</button>
-				<div id="ast">...</div>
+				<pre id="ast">...</pre>
 			</details>
 
 			<details>
