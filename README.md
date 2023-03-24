@@ -173,7 +173,7 @@ statement       : exprStmt
 
 exprStmt        : expr ;
 
-ifStmt          : "IF" "(" expr ")" block ( "else" block )? ;
+ifStmt          : "IF" "(" expr ")" block ( "ELSE" block )? ;
 
 repeatStmt      : "REPEAT" "UNTIL" "(" expr ")" block
                 | "REPEAT" expr "TIMES" block ;
